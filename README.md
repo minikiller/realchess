@@ -1,2 +1,2 @@
 # Real Chess
-Real-time chess game 
+Real-time go chess game 
