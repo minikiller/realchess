@@ -265,7 +265,8 @@
       // todo check what is board
       socket.emit('move', { move: move, gameId: serverGame.id });
       // socket.emit('move', { move: move, gameId: serverGame.id, board: game.fen() });
-
+      var audio = new Audio('static/move.mp3');
+      audio.play();
       // append new node to the current kifu
       myplayer.kifuReader.node.appendChild(node);
 
@@ -311,8 +312,9 @@
           },
           _edited: true
         });
-      }
-
+        //TODO check if stone is dead
+      var audio = new Audio('static/move.mp3');
+      audio.play();
       // append new node to the current kifu
       player.kifuReader.node.appendChild(node);
 
