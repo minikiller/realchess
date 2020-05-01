@@ -19,7 +19,7 @@ body {
 	.page.login .logo {
 		display: block;
 		background-color: lightgray;
-		background-image: url('/img/chesslogo.jpg');
+		background-image: url('/img/chesslogo.jpeg');
 		background-size: cover;
 		background-position: center center;
 
