@@ -150,8 +150,10 @@
       var elem = document.getElementById("game-board");
       // let hi = new WGo.Game();
       // WGo.Game = hi
+      white = serverGame.users.white
+      black = serverGame.users.black
       const _player = new WGo.BasicPlayer(elem, {
-        sgf: "(;SZ[19]"
+        sgf: "(;SZ[19]" + "PB[" + black + "]PW[" + white + "]"
         // move: 1000	
       });
       myboard = _player.board
@@ -261,7 +263,7 @@
         c: myplayer.kifuReader.game.turn
       }
       // todo check what is board
-      socket.emit('move', { move: move, gameId: serverGame.id, board: 123 });
+      socket.emit('move', { move: move, gameId: serverGame.id });
       // socket.emit('move', { move: move, gameId: serverGame.id, board: game.fen() });
 
       // append new node to the current kifu

@@ -99,7 +99,7 @@ io.on('connection', function(socket) {
     
     socket.on('move', function(msg) {
         socket.broadcast.emit('move', msg);
-        activeGames[msg.gameId].board = msg.board;
+        // activeGames[msg.gameId].board = msg.board;
         console.log(msg);
     });
     
