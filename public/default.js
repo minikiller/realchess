@@ -58,12 +58,7 @@
         // game.move(msg.move);
         // board.position(game.fen());
         move_play(myplayer, msg.move.x, msg.move.y);
-        _ev_move = _ev_move || edit_board_mouse_move.bind(myboard);
-        _ev_out = _ev_out || edit_board_mouse_out.bind(myboard);
-        _ev_click = _ev_click || play.bind(myboard);
-        myboard.addEventListener("mousemove", _ev_move);
-        myboard.addEventListener("click", _ev_click);
-        myboard.addEventListener("mouseout", _ev_out);
+        enable_board(myplayer);
       }
     });
 
@@ -153,60 +148,22 @@
       white = serverGame.users.white
       black = serverGame.users.black
       const _player = new WGo.BasicPlayer(elem, {
-        sgf: "(;SZ[19]TM[60]" + "PB[" + black + "]PW[" + white + "]"
+        sgf: "(;SZ[19]TM[60]KM[3又3/4子]" + "PB[" + black + "]PW[" + white + "]"
         // move: 1000	
       });
       myboard = _player.board
       myplayer = _player
       if (playerColor == 'black') {
-        _ev_move = _ev_move || edit_board_mouse_move.bind(myboard);
-        _ev_out = _ev_out || edit_board_mouse_out.bind(myboard);
-        _ev_click = _ev_click || play.bind(myboard);
-        myboard.addEventListener("mousemove", _ev_move);
-        myboard.addEventListener("click", _ev_click);
-        myboard.addEventListener("mouseout", _ev_out);
+        enable_board(myboard);
       }
 
       // game = serverGame.board ? new Chess(serverGame.board) : new Chess();
       // board = new ChessBoard('game-board', cfg);
     }
 
-    // do not pick up pieces if the game is over
-    // only pick up pieces for the side to move
-    var onDragStart = function (source, piece, position, orientation) {
-      if (game.game_over() === true ||
-        (game.turn() === 'w' && piece.search(/^b/) !== -1) ||
-        (game.turn() === 'b' && piece.search(/^w/) !== -1) ||
-        (game.turn() !== playerColor[0])) {
-        return false;
-      }
-    };
 
 
-
-    var onDrop = function (source, target) {
-      // see if the move is legal
-      var move = game.move({
-        from: source,
-        to: target,
-        promotion: 'q' // NOTE: always promote to a queen for example simplicity
-      });
-
-      // illegal move
-      if (move === null) {
-        return 'snapback';
-      } else {
-        socket.emit('move', { move: move, gameId: serverGame.id, board: game.fen() });
-      }
-
-    };
-
-    // update the board position after the piece snap 
-    // for castling, en passant, pawn promotion
-    var onSnapEnd = function () {
-      board.position(game.fen());
-    };
-
+    //board mouse move event
     var edit_board_mouse_move = function (x, y) {
       if (myplayer.frozen || (this._lastX == x && this._lastY == y)) return;
 
@@ -230,6 +187,8 @@
         delete this._last_mark;
       }
     }
+
+    //play a move
     var play = function (x, y) {
       // ignore invalid move
       if (myplayer.frozen || !myplayer.kifuReader.game.isValid(x, y)) return;
@@ -265,19 +224,40 @@
       // todo check what is board
       socket.emit('move', { move: move, gameId: serverGame.id });
       // socket.emit('move', { move: move, gameId: serverGame.id, board: game.fen() });
-      var audio = new Audio('static/move.mp3');
-      audio.play();
+      play_audio();
       // append new node to the current kifu
       myplayer.kifuReader.node.appendChild(node);
 
       // show next move
       myplayer.next(myplayer.kifuReader.node.children.length - 1);
 
+      disable_board(myplayer);
+
+    }
+
+    //play a audio
+    //TODO check if stone is dead
+    var play_audio = function () {
+      var audio = new Audio('static/move.mp3');
+      audio.play();
+    }
+
+    var disable_board = function (myboard) {
       myboard.removeEventListener("click", _ev_click);
       myboard.removeEventListener("mousemove", _ev_move);
       myboard.removeEventListener("mouseout", _ev_out);
-
     }
+
+    //enable board so it can play 
+    var enable_board = function (myboard) {
+      _ev_move = _ev_move || edit_board_mouse_move.bind(myboard);
+      _ev_out = _ev_out || edit_board_mouse_out.bind(myboard);
+      _ev_click = _ev_click || play.bind(myboard);
+      myboard.addEventListener("mousemove", _ev_move);
+      myboard.addEventListener("click", _ev_click);
+      myboard.addEventListener("mouseout", _ev_out);
+    }
+
     // board mouseout callback for edit move	
     var edit_board_mouse_out = function () {
       if (this._last_mark) {
@@ -287,6 +267,7 @@
         delete this._lastY;
       }
     }
+
     var move_play = function (player, x, y) {
       // ignore invalid move
       if (player.frozen || !player.kifuReader.game.isValid(x, y)) return;
@@ -312,15 +293,16 @@
           },
           _edited: true
         });
-        //TODO check if stone is dead
-      var audio = new Audio('static/move.mp3');
-      audio.play();
-      // append new node to the current kifu
-      player.kifuReader.node.appendChild(node);
 
-      // show next move
-      player.next(player.kifuReader.node.children.length - 1);
+        play_audio();
+
+        // append new node to the current kifu
+        player.kifuReader.node.appendChild(node);
+
+        // show next move
+        player.next(player.kifuReader.node.children.length - 1);
+      }
     }
-  });
+  );
 })();
 
