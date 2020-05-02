@@ -50,7 +50,7 @@
       console.log("joined as game id: " + msg.game.id);
       playerColor = msg.color;
       initGame(msg.game, playerColor);
-
+      document.getElementById('room').innerHTML = 'room id: ' + msg.game.id;
       $('#page-lobby').hide();
       $('#page-game').show();
 
@@ -58,6 +58,8 @@
 
     socket.on('viewgame', function (msg) {
       console.log("joined as game id: " + msg.game.id);
+      document.getElementById('room').innerHTML = 'room id: ' + msg.game.id;
+      
       // playerColor = msg.color;
       initViewGame(msg.game);
 
