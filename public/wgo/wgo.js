@@ -45,7 +45,7 @@ var WGo = {
 	DIR: mydir,
 
 	// Language of player, you can change this global variable any time. Object WGo.i18n.<your lang> must exist.
-	lang: "en",
+	lang: "zh",
 
 	// Add terms for each language here
 	i18n: {
