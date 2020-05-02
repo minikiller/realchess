@@ -153,7 +153,8 @@
       black = serverGame.users.black
       const _player = new WGo.BasicPlayer(elem, {
         sgf: "(;SZ[19]TM[60]KM[7.5]" + "PB[" + black + "]PW[" + white + "]",
-        enableWheel: false
+        enableWheel: false,
+        enableKeys: false
         // move: 1000	
       });
       myboard = _player.board
@@ -161,6 +162,7 @@
       // 显示棋谱坐标
       myplayer.setCoordinates(!myplayer.coordinates);
       if (playerColor == 'black') {
+
         enable_board();
       }
 
@@ -251,6 +253,8 @@
     }
 
     var disable_board = function () {
+      score = document.getElementById("game-score");
+      score.disabled = true
       myboard.removeEventListener("click", _ev_click);
       myboard.removeEventListener("mousemove", _ev_move);
       myboard.removeEventListener("mouseout", _ev_out);
@@ -258,6 +262,8 @@
 
     //enable board so it can play 
     var enable_board = function () {
+      score = document.getElementById("game-score");
+      score.disabled = false
       _ev_move = _ev_move || edit_board_mouse_move.bind(myboard);
       _ev_out = _ev_out || edit_board_mouse_out.bind(myboard);
       _ev_click = _ev_click || play.bind(myboard);
