@@ -303,6 +303,6 @@
         player.next(player.kifuReader.node.children.length - 1);
       }
     }
-  );
+  });
 })();
 
