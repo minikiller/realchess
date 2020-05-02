@@ -2,7 +2,7 @@
 (function () {
 
   WinJS.UI.processAll().then(function () {
-    var myboard, myplayer, _ev_move, _ev_click, _ev_out, score_selected
+    var myboard, myplayer, _ev_move, _ev_click, _ev_out, score_selected, isView = false
     var socket, serverGame;
     var username, playerColor;
     var game, board;
@@ -20,6 +20,9 @@
 
       myGames = msg.games;
       updateGamesList();
+
+      allGames = msg.allgames;
+      updateAllGamesList();
     });
 
     socket.on('joinlobby', function (msg) {
@@ -53,12 +56,23 @@
 
     });
 
+    socket.on('viewgame', function (msg) {
+      console.log("joined as game id: " + msg.game.id);
+      // playerColor = msg.color;
+      initViewGame(msg.game);
+
+      $('#page-lobby').hide();
+      $('#page-game').show();
+
+    });
+
     socket.on('move', function (msg) {
       if (serverGame && msg.gameId === serverGame.id) {
         // game.move(msg.move);
         // board.position(game.fen());
         move_play(myplayer, msg.move.x, msg.move.y);
-        enable_board();
+        if (!isView)
+          enable_board();
       }
     });
 
@@ -132,6 +146,18 @@
           }));
       });
     };
+    //allGamesList
+
+    var updateAllGamesList = function () {
+      document.getElementById('allGamesList').innerHTML = '';
+      allGames.forEach(function (game) {
+        $('#allGamesList').append($('<button>')
+          .text('#' + game)
+          .on('click', function () {
+            socket.emit('viewgame', { gameId: game, userId: username });
+          }));
+      });
+    };
 
     var updateUserList = function () {
       document.getElementById('userList').innerHTML = '';
@@ -147,6 +173,27 @@
     //////////////////////////////
     // Chess Game
     ////////////////////////////// 
+    var initViewGame = function (serverGameState) {
+      serverGame = serverGameState;
+      var elem = document.getElementById("game-board");
+      // let hi = new WGo.Game();
+      // WGo.Game = hi
+      white = serverGame.users.white
+      black = serverGame.users.black
+      const _player = new WGo.BasicPlayer(elem, {
+        sgf: serverGame.kifu,
+        enableWheel: false,
+        enableKeys: false,
+        move: 1000
+      });
+      myboard = _player.board
+      myplayer = _player
+      // 显示棋谱坐标
+      myplayer.setCoordinates(!myplayer.coordinates);
+      isView = true;
+      // game = serverGame.board ? new Chess(serverGame.board) : new Chess();
+      // board = new ChessBoard('game-board', cfg);
+    }
 
     var initGame = function (serverGameState, playerColor) {
       serverGame = serverGameState;
@@ -234,8 +281,6 @@
         y: y,
         c: myplayer.kifuReader.game.turn
       }
-      // todo check what is board
-      socket.emit('move', { move: move, gameId: serverGame.id });
       // socket.emit('move', { move: move, gameId: serverGame.id, board: game.fen() });
 
       // append new node to the current kifu
@@ -243,6 +288,8 @@
 
       // show next move
       myplayer.next(myplayer.kifuReader.node.children.length - 1);
+      // todo check what is board
+      socket.emit('move', { move: move, gameId: serverGame.id, kifu: myplayer.kifu.toSgf() });
 
       disable_board();
       play_audio();
@@ -251,6 +298,7 @@
 
     //play a audio
     //TODO check if stone is dead
+    //TODO 用时解决
     var play_audio = function () {
       var audio = new Audio('static/move.mp3');
       audio.play();

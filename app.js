@@ -9,6 +9,7 @@ var port = process.env.PORT || 3000;
 var lobbyUsers = {};
 var users = {};
 var activeGames = {};
+var allGames = {};
 
 app.get('/', function (req, res) {
     res.sendFile(__dirname + '/public/default.html');
@@ -48,7 +49,8 @@ io.on('connection', function (socket) {
 
         socket.emit('login', {
             users: Object.keys(lobbyUsers),
-            games: Object.keys(users[userId].games)
+            games: Object.keys(users[userId].games),
+            allgames: Object.keys(allGames)
         });
         lobbyUsers[userId] = socket;
 
@@ -65,11 +67,13 @@ io.on('connection', function (socket) {
         var game = {
             id: Math.floor((Math.random() * 100) + 1),
             board: null,
-            users: { white: socket.userId, black: opponentId }
+            users: { white: socket.userId, black: opponentId },
+            kifu: null
         };
 
         socket.gameId = game.id;
         activeGames[game.id] = game;
+        allGames[game.id] = game;
 
         users[game.users.white].games[game.id] = game.id;
         users[game.users.black].games[game.id] = game.id;
@@ -82,6 +86,16 @@ io.on('connection', function (socket) {
         delete lobbyUsers[game.users.black];
 
         socket.broadcast.emit('gameadd', { gameId: game.id, gameState: game });
+    });
+
+    socket.on('viewgame', function (msg) {
+        console.log(getFormattedDate() + 'ready to view game: ' + msg.gameId);
+
+        socket.gameId = msg.gameId;
+        var game = activeGames[msg.gameId];
+        console.log(getFormattedDate() + 'begin to view game: ' + msg.gameId);
+        lobbyUsers[msg.userId].emit('viewgame', { game: game});
+
     });
 
     socket.on('resumegame', function (gameId) {
@@ -109,11 +123,15 @@ io.on('connection', function (socket) {
     socket.on('move', function (msg) {
         socket.broadcast.emit('move', msg);
         // activeGames[msg.gameId].board = msg.board;
-        console.log(msg);
+        activeGames[msg.gameId].kifu = msg.kifu;
+        // allGames[msg.gameId].kifu = msg.kifu;
+        console.log(getFormattedDate() + 'move data is ' + msg.move);
+        console.log(getFormattedDate() + 'kifu data is ' + msg.kifu);
+
     });
 
     socket.on('resign', function (msg) {
-        console.log("resign: " + msg);
+        console.log(getFormattedDate() + "resign: " + msg);
 
         delete users[activeGames[msg.gameId].users.white].games[msg.gameId];
         delete users[activeGames[msg.gameId].users.black].games[msg.gameId];
