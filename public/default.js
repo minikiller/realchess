@@ -103,6 +103,10 @@
       getScore();
     });
 
+    $('#game-kifu').on('click', function () {
+      alert(myplayer.kifu.toSgf());
+    });
+
     var addUser = function (userId) {
       usersOnline.push(userId);
       updateUserList();
