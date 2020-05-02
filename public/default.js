@@ -152,7 +152,8 @@
       white = serverGame.users.white
       black = serverGame.users.black
       const _player = new WGo.BasicPlayer(elem, {
-        sgf: "(;SZ[19]TM[60]KM[7.5]" + "PB[" + black + "]PW[" + white + "]"
+        sgf: "(;SZ[19]TM[60]KM[7.5]" + "PB[" + black + "]PW[" + white + "]",
+        enableWheel: false
         // move: 1000	
       });
       myboard = _player.board
