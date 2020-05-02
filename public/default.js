@@ -58,7 +58,7 @@
         // game.move(msg.move);
         // board.position(game.fen());
         move_play(myplayer, msg.move.x, msg.move.y);
-        enable_board(myplayer);
+        enable_board();
       }
     });
 
@@ -154,7 +154,7 @@
       myboard = _player.board
       myplayer = _player
       if (playerColor == 'black') {
-        enable_board(myboard);
+        enable_board();
       }
 
       // game = serverGame.board ? new Chess(serverGame.board) : new Chess();
@@ -224,14 +224,15 @@
       // todo check what is board
       socket.emit('move', { move: move, gameId: serverGame.id });
       // socket.emit('move', { move: move, gameId: serverGame.id, board: game.fen() });
-      play_audio();
+      
       // append new node to the current kifu
       myplayer.kifuReader.node.appendChild(node);
 
       // show next move
       myplayer.next(myplayer.kifuReader.node.children.length - 1);
 
-      disable_board(myplayer);
+      disable_board();
+      play_audio();
 
     }
 
@@ -242,14 +243,14 @@
       audio.play();
     }
 
-    var disable_board = function (myboard) {
+    var disable_board = function () {
       myboard.removeEventListener("click", _ev_click);
       myboard.removeEventListener("mousemove", _ev_move);
       myboard.removeEventListener("mouseout", _ev_out);
     }
 
     //enable board so it can play 
-    var enable_board = function (myboard) {
+    var enable_board = function () {
       _ev_move = _ev_move || edit_board_mouse_move.bind(myboard);
       _ev_out = _ev_out || edit_board_mouse_out.bind(myboard);
       _ev_click = _ev_click || play.bind(myboard);
@@ -294,13 +295,12 @@
           _edited: true
         });
 
-        play_audio();
-
         // append new node to the current kifu
         player.kifuReader.node.appendChild(node);
 
         // show next move
         player.next(player.kifuReader.node.children.length - 1);
+        play_audio();
       }
     }
   });
