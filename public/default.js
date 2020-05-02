@@ -2,7 +2,7 @@
 (function () {
 
   WinJS.UI.processAll().then(function () {
-    var myboard, myplayer, _ev_move, _ev_click, _ev_out
+    var myboard, myplayer, _ev_move, _ev_click, _ev_out, score_selected
     var socket, serverGame;
     var username, playerColor;
     var game, board;
@@ -99,6 +99,10 @@
       $('#page-lobby').show();
     });
 
+    $('#game-score').on('click', function () {
+      getScore();
+    });
+
     var addUser = function (userId) {
       usersOnline.push(userId);
       updateUserList();
@@ -148,11 +152,13 @@
       white = serverGame.users.white
       black = serverGame.users.black
       const _player = new WGo.BasicPlayer(elem, {
-        sgf: "(;SZ[19]TM[60]KM[3又3/4子]" + "PB[" + black + "]PW[" + white + "]"
+        sgf: "(;SZ[19]TM[60]KM[7.5]" + "PB[" + black + "]PW[" + white + "]"
         // move: 1000	
       });
       myboard = _player.board
       myplayer = _player
+      // 显示棋谱坐标
+      myplayer.setCoordinates(!myplayer.coordinates);
       if (playerColor == 'black') {
         enable_board();
       }
@@ -224,7 +230,7 @@
       // todo check what is board
       socket.emit('move', { move: move, gameId: serverGame.id });
       // socket.emit('move', { move: move, gameId: serverGame.id, board: game.fen() });
-      
+
       // append new node to the current kifu
       myplayer.kifuReader.node.appendChild(node);
 
@@ -266,6 +272,24 @@
         delete this._last_mark;
         delete this._lastX;
         delete this._lastY;
+      }
+    }
+    // 显示分数
+    function getScore() {
+      if (score_selected) {
+        myplayer.setFrozen(false);
+        this._score_mode.end();
+        delete this._score_mode;
+        myplayer.notification();
+        myplayer.help();
+        score_selected = false;
+      }
+      else {
+        myplayer.setFrozen(true);
+        myplayer.help("<p>" + WGo.t("help_score") + "</p>");
+        this._score_mode = new WGo.ScoreMode(myplayer.kifuReader.game.position, myplayer.board, myplayer.kifu.info.KM || 0.5, myplayer.notification);
+        this._score_mode.start();
+        score_selected = true;
       }
     }
 
