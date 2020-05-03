@@ -236,6 +236,30 @@
       });
       myboard = _player.board
       myplayer = _player
+      
+      // storage for move markers 棋子上显示数字
+      /**
+      var number_markers = [];
+
+      myplayer.addEventListener("update", function (e) {
+        // this function will be executed after every move
+
+        var marker;
+        if (e.path.m < number_markers.length) {
+          // remove old move numbers
+          for (var i = e.path.m; i < number_markers.length; i++) {
+            myplayer.board.removeObject(number_markers[i]);
+          }
+          number_markers.splice(e.path.m);
+        }
+        else if (e.node.move && !e.node.move.pass) {
+          // add current move marker
+          marker = { x: e.node.move.x, y: e.node.move.y, type: "LB", text: e.path.m };
+          number_markers.push(marker);
+          myplayer.board.addObject(marker);
+        }
+      });**/
+      
       // 显示棋谱坐标
       myplayer.setCoordinates(!myplayer.coordinates);
       if (playerColor == 'black') {
@@ -318,13 +342,14 @@
       socket.emit('move', { move: move, gameId: serverGame.id, kifu: myplayer.kifu.toSgf() });
 
       disable_board();
-      play_audio();
+      // play_audio();
 
     }
 
     //play a audio
     //TODO check if stone is dead
     //TODO 用时解决
+    //TODO timer
     var play_audio = function () {
       var audio = new Audio('static/move.mp3');
       audio.play();
@@ -409,7 +434,7 @@
 
         // show next move
         player.next(player.kifuReader.node.children.length - 1);
-        play_audio();
+        // play_audio();
       }
     }
   });
