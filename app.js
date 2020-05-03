@@ -142,10 +142,11 @@ io.on('connection', function (socket) {
 
     //listen on new_message
     socket.on('new_message', function (data) {
-        console.log(getFormattedDate() + 'chat message received!' + data.message);
+        console.log(getFormattedDate() + 'chat message received!' + data.message
+            + " user id is: " + socket.userId);
         // lobbyUsers[socket.userId].emit('get_message', { message: data.message, username: socket.userId });
-        socket.broadcast.emit('get_message', { message: data.message, username: socket.userId });
-    });
+        socket.broadcast.emit('get_message', { message: data.message, username: socket.userId, gameId: data.gameId });
+    }); 
 
     socket.on('disconnect', function (msg) {
 

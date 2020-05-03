@@ -90,9 +90,11 @@
 
     //Listen on new_message
     socket.on('get_message', function (data) {
-      feedback.html('');
-      message.val('');
-      chatroom.append("<p class='message'>" + data.username + ": " + data.message + "</p>")
+      if (serverGame && data.gameId === serverGame.id) {
+        feedback.html('');
+        message.val('');
+        chatroom.append("<p class='message'>" + data.username + ": " + data.message + "</p>")
+      }
     });
 
 
@@ -130,7 +132,8 @@
     $('#send_message').on('click', function () {
       value = message.val();
       console.log('get ' + value)
-      socket.emit('new_message', { message: message.val() })
+      
+      socket.emit('new_message', { message: message.val() ,gameId:serverGame.id})
       feedback.html('');
       message.val('');
       chatroom.append("<p class='message'>" + username + ": " + value + "</p>")
@@ -215,7 +218,7 @@
       myboard = _player.board
       myplayer = _player
       // 显示棋谱坐标
-      myplayer.setCoordinates(!myplayer.coordinates);
+      // myplayer.setCoordinates(!myplayer.coordinates);
       isView = true;
       // game = serverGame.board ? new Chess(serverGame.board) : new Chess();
       // board = new ChessBoard('game-board', cfg);
@@ -236,7 +239,7 @@
       });
       myboard = _player.board
       myplayer = _player
-      
+
       // storage for move markers 棋子上显示数字
       /**
       var number_markers = [];
@@ -259,9 +262,9 @@
           myplayer.board.addObject(marker);
         }
       });**/
-      
+
       // 显示棋谱坐标
-      myplayer.setCoordinates(!myplayer.coordinates);
+      // myplayer.setCoordinates(!myplayer.coordinates);
       if (playerColor == 'black') {
 
         enable_board();
