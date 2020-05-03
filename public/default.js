@@ -15,8 +15,8 @@
     var feedback = $("#feedback")
     socket = io();
 
-    var black_time = 3600;
-    var white_time = 3600;
+    var black_time = 60 * 5;
+    var white_time = 60 * 5;
 
     //////////////////////////////
     // Socket.io handlers
