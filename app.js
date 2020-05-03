@@ -143,11 +143,9 @@ io.on('connection', function (socket) {
     //listen on new_message
     socket.on('new_message', function (data) {
         console.log(getFormattedDate() + 'chat message received!' + data.message);
-        //broadcast the new message
-        // io.sockets.emit('get_message', { message: data.message, username: socket.userId });
-// 
+        // lobbyUsers[socket.userId].emit('get_message', { message: data.message, username: socket.userId });
         socket.broadcast.emit('get_message', { message: data.message, username: socket.userId });
-    }); 
+    });
 
     socket.on('disconnect', function (msg) {
 
@@ -165,22 +163,6 @@ io.on('connection', function (socket) {
             gameId: socket.gameId
         });
     });
-
-    /////////////////////
-    // Dashboard messages 
-    /////////////////////
-
-    // socket.on('dashboardlogin', function () {
-    //     console.log('dashboard joined');
-    //     socket.emit('dashboardlogin', { games: activeGames });
-    // });
-
-    // socket.on('send_message', function () {
-    //     console.log('dashboard joined');
-    //     socket.emit('dashboardlogin', { games: activeGames });
-    // });
-
-
 
 });
 

@@ -12,6 +12,7 @@
     var message = $("#message");
     var send_message = $("#send_message");
     var chatroom = $("#chatroom");
+    var feedback = $("#feedback")
     socket = io();
 
     //////////////////////////////
@@ -89,7 +90,7 @@
 
     //Listen on new_message
     socket.on('get_message', function (data) {
-      // feedback.html('');
+      feedback.html('');
       message.val('');
       chatroom.append("<p class='message'>" + data.username + ": " + data.message + "</p>")
     });
@@ -127,8 +128,12 @@
     });
 
     $('#send_message').on('click', function () {
-      console.log('get ' + message.val())
+      value = message.val();
+      console.log('get ' + value)
       socket.emit('new_message', { message: message.val() })
+      feedback.html('');
+      message.val('');
+      chatroom.append("<p class='message'>" + username + ": " + value + "</p>")
     });
 
     $('#game-score').on('click', function () {
@@ -250,7 +255,7 @@
 
       this._lastX = x;
       this._lastY = y;
-      console.log("x value is " + x + ",y value is " + y)
+      // console.log("x value is " + x + ",y value is " + y)
       if (this._last_mark) {
         myboard.removeObject(this._last_mark);
       }
