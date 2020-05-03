@@ -8,6 +8,10 @@
     var game, board;
     var usersOnline = [];
     var myGames = [];
+    //buttons and inputs
+    var message = $("#message");
+    var send_message = $("#send_message");
+    var chatroom = $("#chatroom");
     socket = io();
 
     //////////////////////////////
@@ -59,7 +63,7 @@
     socket.on('viewgame', function (msg) {
       console.log("joined as game id: " + msg.game.id);
       document.getElementById('room').innerHTML = 'room id: ' + msg.game.id;
-      
+
       // playerColor = msg.color;
       initViewGame(msg.game);
 
@@ -81,6 +85,13 @@
 
     socket.on('logout', function (msg) {
       removeUser(msg.username);
+    });
+
+    //Listen on new_message
+    socket.on('get_message', function (data) {
+      // feedback.html('');
+      message.val('');
+      chatroom.append("<p class='message'>" + data.username + ": " + data.message + "</p>")
     });
 
 
@@ -115,6 +126,11 @@
       $('#page-lobby').show();
     });
 
+    $('#send_message').on('click', function () {
+      console.log('get ' + message.val())
+      socket.emit('new_message', { message: message.val() })
+    });
+
     $('#game-score').on('click', function () {
       getScore();
     });
@@ -122,6 +138,9 @@
     $('#game-kifu').on('click', function () {
       alert(myplayer.kifu.toSgf());
     });
+
+
+
 
     var addUser = function (userId) {
       usersOnline.push(userId);
