@@ -94,7 +94,7 @@ io.on('connection', function (socket) {
         socket.gameId = msg.gameId;
         var game = activeGames[msg.gameId];
         console.log(getFormattedDate() + 'begin to view game: ' + msg.gameId);
-        lobbyUsers[msg.userId].emit('viewgame', { game: game});
+        lobbyUsers[msg.userId].emit('viewgame', { game: game });
 
     });
 
@@ -140,6 +140,12 @@ io.on('connection', function (socket) {
         socket.broadcast.emit('resign', msg);
     });
 
+    //listen on new_message
+    socket.on('new_message', function (data) {
+        console.log(getFormattedDate() + 'chat message received!' + data.message);
+        // lobbyUsers[socket.userId].emit('get_message', { message: data.message, username: socket.userId });
+        socket.broadcast.emit('get_message', { message: data.message, username: socket.userId });
+    });
 
     socket.on('disconnect', function (msg) {
 
@@ -156,15 +162,6 @@ io.on('connection', function (socket) {
             userId: socket.userId,
             gameId: socket.gameId
         });
-    });
-
-    /////////////////////
-    // Dashboard messages 
-    /////////////////////
-
-    socket.on('dashboardlogin', function () {
-        console.log('dashboard joined');
-        socket.emit('dashboardlogin', { games: activeGames });
     });
 
 });
