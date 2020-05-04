@@ -2,6 +2,8 @@
 
 	"use strict";
 
+	// var white_save, black_save;
+
 	var prepare_dom = function () {
 		prepare_dom_box.call(this, "white");
 		prepare_dom_box.call(this, "black");
@@ -32,6 +34,8 @@
 		t.info.caps.val.innerHTML = "0";
 		t.info.time = prepare_dom_info("time");
 		t.info.time.val.innerHTML = "--:--";
+		t.white_save = "";
+		t.black_save = "";
 		info_wrapper.appendChild(t.info.rank.wrapper);
 		info_wrapper.appendChild(t.info.caps.wrapper);
 		info_wrapper.appendChild(t.info.time.wrapper);
@@ -89,7 +93,8 @@
 			this.black.info.time.val.innerHTML = "--:--";
 			this.white.info.time.val.innerHTML = "--:--";
 		}
-
+		this.white_save = this.white.name.innerHTML;
+		this.black_save = this.black.name.innerHTML;
 		this.updateDimensions();
 	}
 
@@ -135,6 +140,18 @@
 		 * if (e.node.BL) this.setPlayerTime("black", e.node.BL);
 		 * if (e.node.WL) this.setPlayerTime("white", e.node.WL);
 		 */
+		if (e.node.move) {
+			var _html = '<font size="3" face="verdana" color="green"> 行棋 </font>'
+			if (e.node.move.c == -1) {
+				this.white.name.innerHTML = this.white_save;
+				this.black.name.innerHTML = this.black_save + _html
+			}
+			else {
+				this.white.name.innerHTML = this.white_save + _html
+				this.black.name.innerHTML = this.black_save;
+			}
+		}
+
 		if (e.node.BL >= 0) this.setPlayerTime("black", e.node.BL);
 		if (e.node.WL >= 0) this.setPlayerTime("white", e.node.WL);
 		if (e.position.capCount.black !== undefined) this.black.info.caps.val.innerHTML = e.position.capCount.black;
