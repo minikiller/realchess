@@ -46,11 +46,16 @@
 
     socket.on('resign', function (msg) {
       if (msg.gameId == serverGame.id) {
-
+        if (myplayer.kifuReader.node.move.c == 1) {
+          game_over("白中盘胜");
+        }
+        else {
+          game_over("黑中盘胜");
+        }
         socket.emit('login', username);
 
-        $('#page-lobby').show();
-        $('#page-game').hide();
+        // $('#page-lobby').show();
+        // $('#page-game').hide();
       }
     });
 
@@ -130,8 +135,15 @@
       socket.emit('resign', { userId: username, gameId: serverGame.id });
 
       socket.emit('login', username);
-      $('#page-game').hide();
-      $('#page-lobby').show();
+      if (myplayer.kifuReader.node.move.c == 1) {
+        game_over("白中盘胜");
+      }
+      else {
+        game_over("黑中盘胜");
+      }
+      // game_over("resign");
+      // $('#page-game').hide();
+      // $('#page-lobby').show();
     });
 
     $('#send_message').on('click', function () {
@@ -436,8 +448,6 @@
           myplayer.update();
           if (myplayer.kifuReader.node.BL == 0) {
 
-            clearTimeout(timer_loop);
-            alert("GAME OVER,White win");
 
             game_over("白超时胜")
             // game.game_over = true;
@@ -453,9 +463,6 @@
 
           myplayer.update();
           if (myplayer.kifuReader.node.WL == 0) {
-            clearTimeout(timer_loop);
-
-            alert("GAME OVER,Black Win");
 
             game_over("黑超时胜")
             // game.game_over = true;
@@ -469,6 +476,7 @@
     }
 
     var game_over = function (result) {
+      clearTimeout(timer_loop);
       node = new WGo.KNode({
         RE: result
       });
@@ -479,10 +487,12 @@
       // myplayer.kifu.info['BL'] = black_time;
       // myplayer.kifu.info['WL'] = white_time;
       myplayer.loadSgf(myplayer.kifu.toSgf(), 1000);
-      myplayer.kifuReader.node.WL=white_time;
-      myplayer.kifuReader.node.BL=black_time;
+      myplayer.kifuReader.node.WL = white_time;
+      myplayer.kifuReader.node.BL = black_time;
 
       myplayer.update();
+      alert(result);
+      $("#result").append("<h3>" + result + "</h3>")
       console.log(myplayer.kifu.toSgf())
       console.log('info is ' + myplayer.kifu.info)
 
