@@ -14,7 +14,7 @@
     var chatroom = $("#chatroom");
     var feedback = $("#feedback")
     socket = io();
-    var total_time = 10 * 6;
+    var total_time = 60 * 5;
     var black_time = total_time;
     var white_time = total_time;
 
