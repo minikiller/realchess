@@ -14,6 +14,9 @@
     var chatroom = $("#chatroom");
     var feedback = $("#feedback")
     socket = io();
+    var total_time = 60 * 5;
+    var black_time = total_time;
+    var white_time = total_time;
 
     //////////////////////////////
     // Socket.io handlers
@@ -43,11 +46,16 @@
 
     socket.on('resign', function (msg) {
       if (msg.gameId == serverGame.id) {
-
+        if (myplayer.kifuReader.node.move.c == 1) {
+          game_over("白中盘胜");
+        }
+        else {
+          game_over("黑中盘胜");
+        }
         socket.emit('login', username);
 
-        $('#page-lobby').show();
-        $('#page-game').hide();
+        // $('#page-lobby').show();
+        // $('#page-game').hide();
       }
     });
 
@@ -77,6 +85,8 @@
       if (serverGame && msg.gameId === serverGame.id) {
         // game.move(msg.move);
         // board.position(game.fen());
+        black_time = msg.BL;
+        white_time = msg.WL;
         move_play(myplayer, msg.move.x, msg.move.y);
         if (!isView)
           enable_board();
@@ -125,15 +135,22 @@
       socket.emit('resign', { userId: username, gameId: serverGame.id });
 
       socket.emit('login', username);
-      $('#page-game').hide();
-      $('#page-lobby').show();
+      if (myplayer.kifuReader.node.move.c == 1) {
+        game_over("白中盘胜");
+      }
+      else {
+        game_over("黑中盘胜");
+      }
+      // game_over("resign");
+      // $('#page-game').hide();
+      // $('#page-lobby').show();
     });
 
     $('#send_message').on('click', function () {
       value = message.val();
       console.log('get ' + value)
-      
-      socket.emit('new_message', { message: message.val() ,gameId:serverGame.id})
+
+      socket.emit('new_message', { message: message.val(), gameId: serverGame.id })
       feedback.html('');
       message.val('');
       chatroom.append("<p class='message'>" + username + ": " + value + "</p>")
@@ -231,8 +248,9 @@
       // WGo.Game = hi
       white = serverGame.users.white
       black = serverGame.users.black
+
       const _player = new WGo.BasicPlayer(elem, {
-        sgf: "(;SZ[19]TM[60]KM[7.5]" + "PB[" + black + "]PW[" + white + "]",
+        sgf: "(;SZ[19]TM[" + total_time + "]KM[7.5]" + "PB[" + black + "]PW[" + white + "]",
         enableWheel: false,
         enableKeys: false
         // move: 1000	
@@ -316,6 +334,8 @@
             pass: true,
             c: myplayer.kifuReader.game.turn
           },
+          BL: black_time,
+          WL: white_time,
           _edited: true
         });
       }
@@ -326,6 +346,8 @@
             y: y,
             c: myplayer.kifuReader.game.turn
           },
+          BL: black_time,
+          WL: white_time,
           _edited: true
         });
       }
@@ -342,9 +364,17 @@
       // show next move
       myplayer.next(myplayer.kifuReader.node.children.length - 1);
       // todo check what is board
-      socket.emit('move', { move: move, gameId: serverGame.id, kifu: myplayer.kifu.toSgf() });
+      var data = {
+        move: move,
+        gameId: serverGame.id,
+        kifu: myplayer.kifu.toSgf(),
+        BL: black_time,
+        WL: white_time,
+      };
+      socket.emit('move', data);
 
       disable_board();
+      read_time(turn);
       // play_audio();
 
     }
@@ -406,12 +436,75 @@
       }
     }
 
+    var timer_loop = null; //定时器
+    var read_time = function (turn) {
+      clearTimeout(timer_loop);
+
+      if (turn == -1) {
+        timer_loop = setInterval(function () {
+          black_time -= 1
+          myplayer.kifuReader.node.BL = black_time;
+
+          myplayer.update();
+          if (myplayer.kifuReader.node.BL == 0) {
+
+
+            game_over("白超时胜")
+            // game.game_over = true;
+            // game.info.innerHTML = 'GAME OVER';
+            // game.info.className = '';
+          }
+        }, 1000);
+      }
+      else {
+        timer_loop = setInterval(function () {
+          white_time -= 1
+          myplayer.kifuReader.node.WL = white_time;
+
+          myplayer.update();
+          if (myplayer.kifuReader.node.WL == 0) {
+
+            game_over("黑超时胜")
+            // game.game_over = true;
+            // game.info.innerHTML = 'GAME OVER';
+            // game.info.className = '';
+          }
+        }, 1000);
+      }
+
+      // myplayer.update();
+    }
+
+    var game_over = function (result) {
+      clearTimeout(timer_loop);
+      node = new WGo.KNode({
+        RE: result
+      });
+      // append new node to the current kifu
+      myplayer.kifuReader.node.appendChild(node);
+
+      myplayer.kifu.info['RE'] = result;
+      // myplayer.kifu.info['BL'] = black_time;
+      // myplayer.kifu.info['WL'] = white_time;
+      myplayer.loadSgf(myplayer.kifu.toSgf(), 1000);
+      myplayer.kifuReader.node.WL = white_time;
+      myplayer.kifuReader.node.BL = black_time;
+
+      myplayer.update();
+      alert(result);
+      $("#result").append("<h3>" + result + "</h3>")
+      console.log(myplayer.kifu.toSgf())
+      console.log('info is ' + myplayer.kifu.info)
+
+      disable_board();
+    }
+
     var move_play = function (player, x, y) {
       // ignore invalid move
       if (player.frozen || !player.kifuReader.game.isValid(x, y)) return;
 
       var node;
-
+      turn = player.kifuReader.game.turn;
       // create new node
       if (x == null) {
         node = new WGo.KNode({
@@ -419,6 +512,8 @@
             pass: true,
             c: player.kifuReader.game.turn
           },
+          BL: black_time,
+          WL: white_time,
           _edited: true
         });
       }
@@ -429,6 +524,8 @@
             y: y,
             c: player.kifuReader.game.turn
           },
+          BL: black_time,
+          WL: white_time,
           _edited: true
         });
 
@@ -437,6 +534,7 @@
 
         // show next move
         player.next(player.kifuReader.node.children.length - 1);
+        read_time(turn);
         // play_audio();
       }
     }
