@@ -14,9 +14,9 @@
     var chatroom = $("#chatroom");
     var feedback = $("#feedback")
     socket = io();
-
-    var black_time = 60 * 5;
-    var white_time = 60 * 5;
+    var total_time = 10 * 6;
+    var black_time = total_time;
+    var white_time = total_time;
 
     //////////////////////////////
     // Socket.io handlers
@@ -80,6 +80,8 @@
       if (serverGame && msg.gameId === serverGame.id) {
         // game.move(msg.move);
         // board.position(game.fen());
+        black_time = msg.BL;
+        white_time = msg.WL;
         move_play(myplayer, msg.move.x, msg.move.y);
         if (!isView)
           enable_board();
@@ -234,9 +236,9 @@
       // WGo.Game = hi
       white = serverGame.users.white
       black = serverGame.users.black
-      time = 60 * 60
+
       const _player = new WGo.BasicPlayer(elem, {
-        sgf: "(;SZ[19]TM[" + time + "]KM[7.5]" + "PB[" + black + "]PW[" + white + "]",
+        sgf: "(;SZ[19]TM[" + total_time + "]KM[7.5]" + "PB[" + black + "]PW[" + white + "]",
         enableWheel: false,
         enableKeys: false
         // move: 1000	
@@ -350,7 +352,14 @@
       // show next move
       myplayer.next(myplayer.kifuReader.node.children.length - 1);
       // todo check what is board
-      socket.emit('move', { move: move, gameId: serverGame.id, kifu: myplayer.kifu.toSgf() });
+      var data = {
+        move: move,
+        gameId: serverGame.id,
+        kifu: myplayer.kifu.toSgf(),
+        BL: black_time,
+        WL: white_time,
+      };
+      socket.emit('move', data);
 
       disable_board();
       read_time(turn);
@@ -415,39 +424,69 @@
       }
     }
 
-    var timer_loop;
+    var timer_loop = null; //定时器
     var read_time = function (turn) {
       clearTimeout(timer_loop);
+
       if (turn == -1) {
         timer_loop = setInterval(function () {
           black_time -= 1
-          myplayer.kifuReader.node.BL -= 1;
+          myplayer.kifuReader.node.BL = black_time;
+
+          myplayer.update();
           if (myplayer.kifuReader.node.BL == 0) {
+
             clearTimeout(timer_loop);
             alert("GAME OVER,White win");
+
+            game_over("白超时胜")
             // game.game_over = true;
             // game.info.innerHTML = 'GAME OVER';
             // game.info.className = '';
           }
-          myplayer.update();
         }, 1000);
       }
       else {
         timer_loop = setInterval(function () {
           white_time -= 1
-          myplayer.kifuReader.node.WL -= 1;
-          if (myplayer.kifuReader.node.BL == 0) {
+          myplayer.kifuReader.node.WL = white_time;
+
+          myplayer.update();
+          if (myplayer.kifuReader.node.WL == 0) {
             clearTimeout(timer_loop);
+
             alert("GAME OVER,Black Win");
+
+            game_over("黑超时胜")
             // game.game_over = true;
             // game.info.innerHTML = 'GAME OVER';
             // game.info.className = '';
           }
-          myplayer.update();
         }, 1000);
       }
 
       // myplayer.update();
+    }
+
+    var game_over = function (result) {
+      node = new WGo.KNode({
+        RE: result
+      });
+      // append new node to the current kifu
+      myplayer.kifuReader.node.appendChild(node);
+
+      myplayer.kifu.info['RE'] = result;
+      // myplayer.kifu.info['BL'] = black_time;
+      // myplayer.kifu.info['WL'] = white_time;
+      myplayer.loadSgf(myplayer.kifu.toSgf(), 1000);
+      myplayer.kifuReader.node.WL=white_time;
+      myplayer.kifuReader.node.BL=black_time;
+
+      myplayer.update();
+      console.log(myplayer.kifu.toSgf())
+      console.log('info is ' + myplayer.kifu.info)
+
+      disable_board();
     }
 
     var move_play = function (player, x, y) {

@@ -11,7 +11,7 @@
             return (key >= 37 && key <= 40) || (key >= 63232 && key <= 63235);
         };
 
-        var initial_time = 10 * 60 * 5;
+        var initial_time = 100;
         var game = null;
 
         function createGame() {
@@ -52,7 +52,7 @@
                         game.info.className = '';
                     }
                     game.displayTimers();
-                }, 100);
+                }, 1000);
                 opponent.clock.className = 'now_playing';
                 this.clock.className = '';
                 game.info.className = 'hidden';
