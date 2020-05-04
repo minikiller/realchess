@@ -129,6 +129,12 @@
 	}
 
 	var update = function (e) {
+		//sunlf changed 
+		/**
+		 * origin is 
+		 * if (e.node.BL) this.setPlayerTime("black", e.node.BL);
+		 * if (e.node.WL) this.setPlayerTime("white", e.node.WL);
+		 */
 		if (e.node.BL >= 0) this.setPlayerTime("black", e.node.BL);
 		if (e.node.WL >= 0) this.setPlayerTime("white", e.node.WL);
 		if (e.position.capCount.black !== undefined) this.black.info.caps.val.innerHTML = e.position.capCount.black;
