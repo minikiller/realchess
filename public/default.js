@@ -13,7 +13,7 @@
     var send_message = $("#send_message");
     var chatroom = $("#chatroom");
     var feedback = $("#feedback")
-    socket = io();
+    var socket = io();
     var total_time = 60 * 5;
     var black_time = total_time;
     var white_time = total_time;
@@ -326,7 +326,6 @@
 
       var node;
 
-      turn = myplayer.kifuReader.game.turn
       // create new node
       if (x == null) {
         node = new WGo.KNode({
@@ -374,7 +373,7 @@
       socket.emit('move', data);
 
       disable_board();
-      read_time(turn);
+      read_time();
       // play_audio();
 
     }
@@ -437,10 +436,10 @@
     }
 
     var timer_loop = null; //定时器
-    var read_time = function (turn) {
+    var read_time = function () {
+      // console.log("your turn value is " + turn);
       clearTimeout(timer_loop);
-
-      if (turn == -1) {
+      if (myplayer.kifuReader.node.move.c == -1) {
         timer_loop = setInterval(function () {
           black_time -= 1
           myplayer.kifuReader.node.BL = black_time;
@@ -504,7 +503,6 @@
       if (player.frozen || !player.kifuReader.game.isValid(x, y)) return;
 
       var node;
-      turn = player.kifuReader.game.turn;
       // create new node
       if (x == null) {
         node = new WGo.KNode({
@@ -534,7 +532,7 @@
 
         // show next move
         player.next(player.kifuReader.node.children.length - 1);
-        read_time(turn);
+        read_time();
         // play_audio();
       }
     }

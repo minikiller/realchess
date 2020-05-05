@@ -157,7 +157,7 @@
 
 		if (e.path && e.node.move) {
 			var last_steps = e.path.m;
-			turn = last_steps % e.opponent;
+			var turn = last_steps % e.opponent;
 			if (turn == 1) {
 				whiteList[0].name.innerHTML = whiteList[0].savedValue + _html;
 				whiteList[1].name.innerHTML = whiteList[1].savedValue;
