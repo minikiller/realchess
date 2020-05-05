@@ -15,4 +15,11 @@ Real-time go chess game
 
 ### Game class: wgo.js 1776 lines
 
-### player.js 287lines update event produce
+### player.js 287 lines update event produce
+
+### tag
+- git tag v0.01 1b9594f -m "完成行棋效果的增加，在继续四人下棋前的保存" (add a tag)
+- git push --tags (push to server) 
+
+- git tag -d v0.01 （delete a tag）
+- git push origin :refs/tags/v0.01 (push to server)

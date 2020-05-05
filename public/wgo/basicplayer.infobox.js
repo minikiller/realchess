@@ -2,15 +2,13 @@
 
 	"use strict";
 
-	var prepare_dom = function () {
-		prepare_dom_box.call(this, "white1");
-		prepare_dom_box.call(this, "black1");
-		this.element.appendChild(this.white1.box);
-		this.element.appendChild(this.black1.box);
+	var prepare_dom = function (opponent) {
+		// for (var i = 0; i < opponent / 2; i++) {
 		prepare_dom_box.call(this, "white");
 		prepare_dom_box.call(this, "black");
 		this.element.appendChild(this.white.box);
 		this.element.appendChild(this.black.box);
+		// }
 	}
 
 	var prepare_dom_box = function (type) {
@@ -101,8 +99,8 @@
 		}
 		this.white_save = this.white.name.innerHTML;
 		this.black_save = this.black.name.innerHTML;
-		this.white1_save = this.white1.name.innerHTML;
-		this.black1_save = this.black1.name.innerHTML;
+		// this.white1_save = this.white1.name.innerHTML;
+		// this.black1_save = this.black1.name.innerHTML;
 		this.updateDimensions();
 	}
 
@@ -150,7 +148,7 @@
 		 */
 		var _html = '<font size="3" face="verdana" color="green"> 行棋 </font>'
 
-		if (e.path && e.node.move) {
+		/**if (e.path && e.node.move) {
 			var last_steps = e.path.m;
 			turn = last_steps % e.opponent;
 			if (turn == 1) {
@@ -176,17 +174,19 @@
 				this.black.name.innerHTML = this.black_save;
 				this.white1.name.innerHTML = this.white1_save;
 				this.black1.name.innerHTML = this.black1_save + _html;
+			}**/
+		if (e.path && e.node.move) {
+			if (e.node.move.c == -1) {
+				this.white.name.innerHTML = this.white_save;
+				this.black.name.innerHTML = this.black_save + _html;
 			}
-
-			// if (e.node.move.c == -1) {
-			// 	this.white.name.innerHTML = this.white_save;
-			// 	this.black.name.innerHTML = this.black_save + _html
-			// }
-			// else {
-			// 	this.white.name.innerHTML = this.white_save + _html
-			// 	this.black.name.innerHTML = this.black_save;
-			// }
+			else {
+				this.white.name.innerHTML = this.white_save + _html;
+				this.black.name.innerHTML = this.black_save;
+			}
 		}
+
+		// }
 
 		if (e.node.BL >= 0) this.setPlayerTime("black", e.node.BL);
 		if (e.node.WL >= 0) this.setPlayerTime("white", e.node.WL);
@@ -202,7 +202,7 @@
 		this.super(player);
 		this.element.className = "wgo-infobox";
 
-		prepare_dom.call(this);
+		prepare_dom.call(this, 4); //TODO read from game opponent
 
 		player.addEventListener("kifuLoaded", kifu_loaded.bind(this));
 		player.addEventListener("update", update.bind(this));
