@@ -26,3 +26,4 @@ Real-time go chess game
 
 ### git branch 
 - git checkout -b dev_game4person
+- git push --set-upstream origin dev_game4person
