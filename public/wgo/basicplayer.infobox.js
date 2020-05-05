@@ -2,9 +2,11 @@
 
 	"use strict";
 
-	// var white_save, black_save;
-
 	var prepare_dom = function () {
+		prepare_dom_box.call(this, "white1");
+		prepare_dom_box.call(this, "black1");
+		this.element.appendChild(this.white1.box);
+		this.element.appendChild(this.black1.box);
 		prepare_dom_box.call(this, "white");
 		prepare_dom_box.call(this, "black");
 		this.element.appendChild(this.white.box);
@@ -72,6 +74,8 @@
 		else {
 			this.black.name.innerHTML = WGo.t("black");
 			this.black.info.rank.val.innerHTML = "-";
+			this.black1.name.innerHTML = WGo.t("black");
+			this.black1.info.rank.val.innerHTML = "-";
 		}
 		if (info.white) {
 			this.white.name.innerHTML = WGo.filterHTML(info.white.name) || WGo.t("white");
@@ -80,6 +84,8 @@
 		else {
 			this.white.name.innerHTML = WGo.t("white");
 			this.white.info.rank.val.innerHTML = "-";
+			this.white1.name.innerHTML = WGo.t("white");
+			this.white1.info.rank.val.innerHTML = "-";
 		}
 
 		this.black.info.caps.val.innerHTML = "0";
@@ -95,6 +101,8 @@
 		}
 		this.white_save = this.white.name.innerHTML;
 		this.black_save = this.black.name.innerHTML;
+		this.white1_save = this.white1.name.innerHTML;
+		this.black1_save = this.black1.name.innerHTML;
 		this.updateDimensions();
 	}
 
@@ -132,7 +140,7 @@
 			}
 		}
 	}
-
+	//每下一步棋子都会调用这个进行更新操作
 	var update = function (e) {
 		//sunlf changed 
 		/**
@@ -140,16 +148,44 @@
 		 * if (e.node.BL) this.setPlayerTime("black", e.node.BL);
 		 * if (e.node.WL) this.setPlayerTime("white", e.node.WL);
 		 */
-		if (e.node.move) {
-			var _html = '<font size="3" face="verdana" color="green"> 行棋 </font>'
-			if (e.node.move.c == -1) {
+		var _html = '<font size="3" face="verdana" color="green"> 行棋 </font>'
+
+		if (e.path && e.node.move) {
+			var last_steps = e.path.m;
+			turn = last_steps % e.opponent;
+			if (turn == 1) {
 				this.white.name.innerHTML = this.white_save;
-				this.black.name.innerHTML = this.black_save + _html
-			}
-			else {
-				this.white.name.innerHTML = this.white_save + _html
 				this.black.name.innerHTML = this.black_save;
+				this.white1.name.innerHTML = this.white1_save + _html;
+				this.black1.name.innerHTML = this.black1_save;
 			}
+			else if (turn == 2) {
+				this.white.name.innerHTML = this.white_save;
+				this.black.name.innerHTML = this.black_save + _html;
+				this.white1.name.innerHTML = this.white1_save;
+				this.black1.name.innerHTML = this.black1_save;
+			}
+			else if (turn == 3) {
+				this.white.name.innerHTML = this.white_save + _html;
+				this.black.name.innerHTML = this.black_save;
+				this.white1.name.innerHTML = this.white_save;
+				this.black1.name.innerHTML = this.black_save;
+			}
+			else if (turn == 0) {
+				this.white.name.innerHTML = this.white_save;
+				this.black.name.innerHTML = this.black_save;
+				this.white1.name.innerHTML = this.white1_save;
+				this.black1.name.innerHTML = this.black1_save + _html;
+			}
+
+			// if (e.node.move.c == -1) {
+			// 	this.white.name.innerHTML = this.white_save;
+			// 	this.black.name.innerHTML = this.black_save + _html
+			// }
+			// else {
+			// 	this.white.name.innerHTML = this.white_save + _html
+			// 	this.black.name.innerHTML = this.black_save;
+			// }
 		}
 
 		if (e.node.BL >= 0) this.setPlayerTime("black", e.node.BL);

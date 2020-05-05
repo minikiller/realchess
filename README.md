@@ -12,3 +12,7 @@ Real-time go chess game
 ### need to do
 
 //TODO 优化代码，socket now will send message to all
+
+### Game class: wgo.js 1776 lines
+
+### player.js 287lines update event produce
