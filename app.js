@@ -68,7 +68,7 @@ io.on('connection', function (socket) {
         var game = {
             id: Math.floor((Math.random() * 100) + 1),
             board: null,
-            users: { white: socket.userId, black: opponentId },
+            users: { white: socket.userId, black: opponentId, white0: 0, black0: 0 },
             kifu: null
         };
 
@@ -94,6 +94,11 @@ io.on('connection', function (socket) {
 
         socket.gameId = msg.gameId;
         var game = activeGames[msg.gameId];
+        if (game.users.black0 == 0) {
+            game.users.black0 = socket.userId
+        } else {
+            game.users.white0 = socket.userId
+        }
         console.log(getFormattedDate() + 'begin to view game: ' + msg.gameId);
         lobbyUsers[msg.userId].emit('viewgame', { game: game });
 
@@ -147,7 +152,7 @@ io.on('connection', function (socket) {
             + " user id is: " + socket.userId);
         // lobbyUsers[socket.userId].emit('get_message', { message: data.message, username: socket.userId });
         socket.broadcast.emit('get_message', { message: data.message, username: socket.userId, gameId: data.gameId });
-    }); 
+    });
 
     socket.on('disconnect', function (msg) {
 

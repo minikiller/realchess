@@ -13,10 +13,12 @@
     var send_message = $("#send_message");
     var chatroom = $("#chatroom");
     var feedback = $("#feedback")
-    var socket = io();
     var total_time = 60 * 5;
     var black_time = total_time;
     var white_time = total_time;
+
+    socket = io();
+
 
     //////////////////////////////
     // Socket.io handlers
@@ -62,6 +64,7 @@
     socket.on('joingame', function (msg) {
       console.log("joined as game id: " + msg.game.id);
       playerColor = msg.color;
+      game = msg.game;
       initGame(msg.game, playerColor);
       document.getElementById('room').innerHTML = 'room id: ' + msg.game.id;
       $('#page-lobby').hide();
@@ -70,9 +73,9 @@
     });
 
     socket.on('viewgame', function (msg) {
-      console.log("joined as game id: " + msg.game.id);
+      console.log("viewed as game id: " + msg.game.id);
+      game = msg.game;
       document.getElementById('room').innerHTML = 'room id: ' + msg.game.id;
-
       // playerColor = msg.color;
       initViewGame(msg.game);
 
@@ -88,8 +91,8 @@
         black_time = msg.BL;
         white_time = msg.WL;
         move_play(myplayer, msg.move.x, msg.move.y);
-        if (!isView)
-          enable_board();
+        // if (!isView)
+        enable_board();
       }
     });
 
@@ -397,6 +400,24 @@
 
     //enable board so it can play 
     var enable_board = function () {
+      var last_steps = myplayer.kifuReader.path.m;
+      var turn = last_steps % 4;
+
+      if (turn == 1 && username == game.users.white) { //black
+        add_event();
+      }
+      if (turn == 2 && username == game.users.black0) { //black
+        add_event();
+      }
+      if (turn == 3 && username == game.users.white0) { //black
+        add_event();
+      }
+      if (turn == 0 && username == game.users.black) { //black
+        add_event();
+      }
+
+    }
+    var add_event = function () {
       score = document.getElementById("game-score");
       score.disabled = false
       _ev_move = _ev_move || edit_board_mouse_move.bind(myboard);
