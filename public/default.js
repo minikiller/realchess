@@ -68,8 +68,10 @@
       game = msg.game;
       initGame(msg.game, playerColor);
       renderRoom(msg);
+      // $('#page-lobby').hide();
+      // $('#page-game').show();
       $('#page-lobby').hide();
-      $('#page-game').show();
+      $('#page-game').css("visibility", "visible");
 
     });
 
@@ -81,7 +83,7 @@
       initViewGame(msg.game);
       renderRoom(msg);
       $('#page-lobby').hide();
-      $('#page-game').show();
+      $('#page-game').css("visibility", "visible");
 
     });
 
@@ -126,6 +128,9 @@
 
         $('#page-login').hide();
         $('#page-lobby').show();
+        // $('#page-login').css("visibility", "hidden");
+        // $('#page-lobby').css("visibility", "visible");
+
       }
     });
 

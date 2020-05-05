@@ -16,19 +16,29 @@
   <link rel="stylesheet" type="text/css" href="themes/wgo.player.dark.css" />
   <link rel="stylesheet" href="/style.css" />
 
-  <!-- <style>
-		body {
+  <style>
+    /* body {
 			background-color: #000;
 			color: white;
-		}
-	</style> -->
+    } */
+
+    .left {
+      float: left;
+      width: 100%;
+      height: 600px;
+      /* background-color: blue; */
+      margin-right: -300px;
+    }
+
+    .right {
+      float: right;
+      width: 400px;
+      height: 600px;
+    }
+  </style>
 </head>
 
 <body>
-  <div class="row">
-    <div class="col">1</div>
-  </div>
-
   <div class="page login" id='page-login'>
     <div class='logo'></div>
     <input id='username'></input>
@@ -51,25 +61,28 @@
     </div>
   </div>
   <div class="page game" id='page-game'>
-    <div id='room'></div>
-    <button id='game-back'>Back</button>
-    <button id='game-resign'>Resign</button>
-    <button id='game-score' disabled=true>Score</button>
-    <button id='game-kifu'>Kifu</button>
-    <div id="result"></div> 
-    <div id='game-board' style="width: 60%; margin: 0">
+
+    <div class="left">
+      <div id='room'></div>
+      <button id='game-back'>Back</button>
+      <button id='game-resign'>Resign</button>
+      <button id='game-score' disabled=true>Score</button>
+      <button id='game-kifu'>Kifu</button>
+      <div id="result"></div>
+      <div id='game-board' style="width: 60%; margin: 0">
+      </div>
+    </div>
+    <div class="right">
+      <section id="chatroom">
+        <section id="feedback"></section>
+      </section>
+
+      <section id="input_zone">
+        <input id="message" class="vertical-align" type="text" />
+        <button id="send_message" class="vertical-align" type="button">Send</button>
+      </section>
     </div>
   </div>
-  
-  <section id="chatroom">
-    <section id="feedback"></section>
-  </section>
-
-  <section id="input_zone">
-    <input id="message" class="vertical-align" type="text" />
-    <button id="send_message" class="vertical-align" type="button">Send</button>
-  </section>
-  
   <!-- <script src="chat.js"></script> -->
 
 
@@ -83,7 +96,7 @@
   <script type="text/javascript" src="wgo/basicplayer.js"></script>
   <script type="text/javascript" src="wgo/basicplayer.component.js"></script>
   <script type="text/javascript" src="wgo/basicplayer.infobox.js"></script>
-  <script type="text/javascript" src="wgo/basicplayer.commentbox.js"></script>
+  <!-- <script type="text/javascript" src="wgo/basicplayer.commentbox.js"></script> -->
   <!-- <script type="text/javascript" src="wgo/basicplayer.control.js"></script> -->
   <!-- <script type="text/javascript" src="wgo/player.editable.js"></script> -->
   <script type="text/javascript" src="wgo/scoremode.js"></script>
