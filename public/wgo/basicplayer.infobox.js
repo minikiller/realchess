@@ -1,14 +1,19 @@
 (function () {
 
 	"use strict";
+	var whiteList = [];
+	var blackList = [];
+	var _html = '<font size="3" face="verdana" color="green"> 行棋 </font>'
 
 	var prepare_dom = function (opponent) {
-		// for (var i = 0; i < opponent / 2; i++) {
-		prepare_dom_box.call(this, "white");
-		prepare_dom_box.call(this, "black");
-		this.element.appendChild(this.white.box);
-		this.element.appendChild(this.black.box);
-		// }
+		for (var i = 0; i < opponent / 2; i++) {
+			var w = prepare_dom_box.call(this, "white");
+			var b = prepare_dom_box.call(this, "black");
+			this.element.appendChild(this.white.box);
+			this.element.appendChild(this.black.box);
+			whiteList.push(w);
+			blackList.push(b);
+		}
 	}
 
 	var prepare_dom_box = function (type) {
@@ -34,11 +39,11 @@
 		t.info.caps.val.innerHTML = "0";
 		t.info.time = prepare_dom_info("time");
 		t.info.time.val.innerHTML = "--:--";
-		t.white_save = "";
-		t.black_save = "";
+		t.savedValue = ""; //保存innerhtml
 		info_wrapper.appendChild(t.info.rank.wrapper);
 		info_wrapper.appendChild(t.info.caps.wrapper);
 		info_wrapper.appendChild(t.info.time.wrapper);
+		return t;
 	}
 
 	var prepare_dom_info = function (type) {
@@ -64,43 +69,46 @@
 
 	var kifu_loaded = function (e) {
 		var info = e.kifu.info || {};
+		for (var item in blackList) {
+			if (info.black) {
+				blackList[item].name.innerHTML = WGo.filterHTML(info.black.name) || WGo.t("black");
+				blackList[item].info.rank.val.innerHTML = WGo.filterHTML(info.black.rank) || "-";
+			}
+			else {
+				blackList[item].name.innerHTML = WGo.t("black");
+				blackList[item].info.rank.val.innerHTML = "-";
+			}
+			blackList[item].info.caps.val.innerHTML = "0";
 
-		if (info.black) {
-			this.black.name.innerHTML = WGo.filterHTML(info.black.name) || WGo.t("black");
-			this.black.info.rank.val.innerHTML = WGo.filterHTML(info.black.rank) || "-";
+			if (info.TM) {
+				this.setPlayerTime(blackList[item], info.TM);
+			}
+			else {
+				blackList[item].info.time.val.innerHTML = "--:--";
+			}
+			blackList[item].savedValue = blackList[item].name.innerHTML;
+
 		}
-		else {
-			this.black.name.innerHTML = WGo.t("black");
-			this.black.info.rank.val.innerHTML = "-";
-			this.black1.name.innerHTML = WGo.t("black");
-			this.black1.info.rank.val.innerHTML = "-";
-		}
-		if (info.white) {
-			this.white.name.innerHTML = WGo.filterHTML(info.white.name) || WGo.t("white");
-			this.white.info.rank.val.innerHTML = WGo.filterHTML(info.white.rank) || "-";
-		}
-		else {
-			this.white.name.innerHTML = WGo.t("white");
-			this.white.info.rank.val.innerHTML = "-";
-			this.white1.name.innerHTML = WGo.t("white");
-			this.white1.info.rank.val.innerHTML = "-";
+		for (var item in whiteList) {
+			if (info.white) {
+				whiteList[item].name.innerHTML = WGo.filterHTML(info.white.name) || WGo.t("white");
+				whiteList[item].info.rank.val.innerHTML = WGo.filterHTML(info.white.rank) || "-";
+			}
+			else {
+				whiteList[item].name.innerHTML = WGo.t("white");
+				whiteList[item].info.rank.val.innerHTML = "-";
+			}
+			whiteList[item].info.caps.val.innerHTML = "0";
+			if (info.TM) {
+				this.setPlayerTime(whiteList[item], info.TM);
+			}
+			else {
+				whiteList[item].info.time.val.innerHTML = "--:--";
+			}
+			whiteList[item].savedValue = whiteList[item].name.innerHTML;
 		}
 
-		this.black.info.caps.val.innerHTML = "0";
-		this.white.info.caps.val.innerHTML = "0";
-
-		if (info.TM) {
-			this.setPlayerTime("black", info.TM);
-			this.setPlayerTime("white", info.TM);
-		}
-		else {
-			this.black.info.time.val.innerHTML = "--:--";
-			this.white.info.time.val.innerHTML = "--:--";
-		}
-		this.white_save = this.white.name.innerHTML;
-		this.black_save = this.black.name.innerHTML;
-		// this.white1_save = this.white1.name.innerHTML;
-		// this.black1_save = this.black1.name.innerHTML;
+		blackList[0].name.innerHTML = blackList[0].savedValue + _html;
 		this.updateDimensions();
 	}
 
@@ -146,52 +154,43 @@
 		 * if (e.node.BL) this.setPlayerTime("black", e.node.BL);
 		 * if (e.node.WL) this.setPlayerTime("white", e.node.WL);
 		 */
-		var _html = '<font size="3" face="verdana" color="green"> 行棋 </font>'
 
-		/**if (e.path && e.node.move) {
+		if (e.path && e.node.move) {
 			var last_steps = e.path.m;
 			turn = last_steps % e.opponent;
 			if (turn == 1) {
-				this.white.name.innerHTML = this.white_save;
-				this.black.name.innerHTML = this.black_save;
-				this.white1.name.innerHTML = this.white1_save + _html;
-				this.black1.name.innerHTML = this.black1_save;
+				whiteList[0].name.innerHTML = whiteList[0].savedValue + _html;
+				whiteList[1].name.innerHTML = whiteList[1].savedValue;
+				blackList[0].name.innerHTML = blackList[0].savedValue;
+				blackList[1].name.innerHTML = blackList[1].savedValue;
 			}
 			else if (turn == 2) {
-				this.white.name.innerHTML = this.white_save;
-				this.black.name.innerHTML = this.black_save + _html;
-				this.white1.name.innerHTML = this.white1_save;
-				this.black1.name.innerHTML = this.black1_save;
+				whiteList[0].name.innerHTML = whiteList[0].savedValue;
+				whiteList[1].name.innerHTML = whiteList[1].savedValue;
+				blackList[0].name.innerHTML = blackList[0].savedValue;
+				blackList[1].name.innerHTML = blackList[1].savedValue + _html;
 			}
 			else if (turn == 3) {
-				this.white.name.innerHTML = this.white_save + _html;
-				this.black.name.innerHTML = this.black_save;
-				this.white1.name.innerHTML = this.white_save;
-				this.black1.name.innerHTML = this.black_save;
+				whiteList[0].name.innerHTML = whiteList[0].savedValue;
+				whiteList[1].name.innerHTML = whiteList[1].savedValue + _html;
+				blackList[0].name.innerHTML = blackList[0].savedValue;
+				blackList[1].name.innerHTML = blackList[1].savedValue;
 			}
 			else if (turn == 0) {
-				this.white.name.innerHTML = this.white_save;
-				this.black.name.innerHTML = this.black_save;
-				this.white1.name.innerHTML = this.white1_save;
-				this.black1.name.innerHTML = this.black1_save + _html;
-			}**/
-		if (e.path && e.node.move) {
-			if (e.node.move.c == -1) {
-				this.white.name.innerHTML = this.white_save;
-				this.black.name.innerHTML = this.black_save + _html;
-			}
-			else {
-				this.white.name.innerHTML = this.white_save + _html;
-				this.black.name.innerHTML = this.black_save;
+				whiteList[0].name.innerHTML = whiteList[0].savedValue;
+				whiteList[1].name.innerHTML = whiteList[1].savedValue;
+				blackList[0].name.innerHTML = blackList[0].savedValue + _html;
+				blackList[1].name.innerHTML = blackList[1].savedValue;
 			}
 		}
-
-		// }
-
-		if (e.node.BL >= 0) this.setPlayerTime("black", e.node.BL);
-		if (e.node.WL >= 0) this.setPlayerTime("white", e.node.WL);
-		if (e.position.capCount.black !== undefined) this.black.info.caps.val.innerHTML = e.position.capCount.black;
-		if (e.position.capCount.white !== undefined) this.white.info.caps.val.innerHTML = e.position.capCount.white;
+		for (var item in blackList) {
+			if (e.node.BL >= 0) this.setPlayerTime(blackList[item], e.node.BL);
+			if (e.position.capCount.black !== undefined) blackList[item].info.caps.val.innerHTML = e.position.capCount.black;
+		}
+		for (var item in whiteList) {
+			if (e.node.WL >= 0) this.setPlayerTime(whiteList[item], e.node.WL);
+			if (e.position.capCount.white !== undefined) whiteList[item].info.caps.val.innerHTML = e.position.capCount.white;
+		}
 	}
 
 	/**
@@ -212,7 +211,7 @@
 	InfoBox.prototype.setPlayerTime = function (color, time) {
 		var min = Math.floor(time / 60);
 		var sec = Math.round(time) % 60;
-		this[color].info.time.val.innerHTML = min + ":" + ((sec < 10) ? "0" + sec : sec);
+		color.info.time.val.innerHTML = min + ":" + ((sec < 10) ? "0" + sec : sec);
 	};
 
 	InfoBox.prototype.updateDimensions = function () {
