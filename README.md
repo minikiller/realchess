@@ -23,3 +23,6 @@ Real-time go chess game
 
 - git tag -d v0.01 （delete a tag）
 - git push origin :refs/tags/v0.01 (push to server)
+
+### git branch 
+- git checkout -b dev_game4person
