@@ -231,8 +231,12 @@
       // WGo.Game = hi
       white = serverGame.users.white;
       black = serverGame.users.black;
-      g_kifu = "(;SZ[19]TM[" + total_time + "]KM[7.5]" + "PB[" + black + "]PW[" + white + "]";
-      
+      if (!serverGame.kifu) {
+        g_kifu = "(;SZ[19]TM[" + total_time + "]KM[7.5]" + "PB[" + black + "]PW[" + white + "]";
+      }
+      else {
+        g_kifu = serverGame.kifu;
+      }
       const _player = new WGo.BasicPlayer(elem, {
         sgf: g_kifu,
         enableWheel: false,
