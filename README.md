@@ -9,6 +9,9 @@ Real-time go chess game
 
 //TODO add exception check to express
 
+//TODO audio 优化
+
+
 ### need to do
 
 //TODO 优化代码，socket now will send message to all

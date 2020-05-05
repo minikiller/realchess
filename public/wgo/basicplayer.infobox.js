@@ -86,6 +86,7 @@
 			else {
 				blackList[item].info.time.val.innerHTML = "--:--";
 			}
+			blackList[1].name.innerHTML = "黑棋第二人";
 			blackList[item].savedValue = blackList[item].name.innerHTML;
 
 		}
@@ -105,10 +106,13 @@
 			else {
 				whiteList[item].info.time.val.innerHTML = "--:--";
 			}
+			whiteList[1].name.innerHTML = '白棋第二人';
 			whiteList[item].savedValue = whiteList[item].name.innerHTML;
 		}
 
 		blackList[0].name.innerHTML = blackList[0].savedValue + _html;
+
+
 		this.updateDimensions();
 	}
 

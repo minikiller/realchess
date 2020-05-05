@@ -16,6 +16,7 @@
     var total_time = 60 * 5;
     var black_time = total_time;
     var white_time = total_time;
+    var white, black;
 
     socket = io();
 
@@ -66,7 +67,7 @@
       playerColor = msg.color;
       game = msg.game;
       initGame(msg.game, playerColor);
-      document.getElementById('room').innerHTML = 'room id: ' + msg.game.id;
+      renderRoom(msg);
       $('#page-lobby').hide();
       $('#page-game').show();
 
@@ -75,10 +76,10 @@
     socket.on('viewgame', function (msg) {
       console.log("viewed as game id: " + msg.game.id);
       game = msg.game;
-      document.getElementById('room').innerHTML = 'room id: ' + msg.game.id;
+
       // playerColor = msg.color;
       initViewGame(msg.game);
-
+      renderRoom(msg);
       $('#page-lobby').hide();
       $('#page-game').show();
 
@@ -100,6 +101,7 @@
     socket.on('logout', function (msg) {
       removeUser(msg.username);
     });
+
 
     //Listen on new_message
     socket.on('get_message', function (data) {
@@ -227,10 +229,12 @@
       var elem = document.getElementById("game-board");
       // let hi = new WGo.Game();
       // WGo.Game = hi
-      white = serverGame.users.white
-      black = serverGame.users.black
+      white = serverGame.users.white;
+      black = serverGame.users.black;
+      g_kifu = "(;SZ[19]TM[" + total_time + "]KM[7.5]" + "PB[" + black + "]PW[" + white + "]";
+      
       const _player = new WGo.BasicPlayer(elem, {
-        sgf: serverGame.kifu,
+        sgf: g_kifu,
         enableWheel: false,
         enableKeys: false,
         move: 1000
@@ -240,8 +244,12 @@
       // 显示棋谱坐标
       // myplayer.setCoordinates(!myplayer.coordinates);
       isView = true;
-      // game = serverGame.board ? new Chess(serverGame.board) : new Chess();
-      // board = new ChessBoard('game-board', cfg);
+
+    }
+
+    var renderRoom = function (msg) {
+      document.getElementById('room').innerHTML = '<h2>room id: ' +
+        msg.game.id + ', username is ' + username + '</h2>';
     }
 
     var initGame = function (serverGameState, playerColor) {
@@ -249,11 +257,11 @@
       var elem = document.getElementById("game-board");
       // let hi = new WGo.Game();
       // WGo.Game = hi
-      white = serverGame.users.white
-      black = serverGame.users.black
-
+      white = serverGame.users.white;
+      black = serverGame.users.black;
+      g_kifu = "(;SZ[19]TM[" + total_time + "]KM[7.5]" + "PB[" + black + "]PW[" + white + "]";
       const _player = new WGo.BasicPlayer(elem, {
-        sgf: "(;SZ[19]TM[" + total_time + "]KM[7.5]" + "PB[" + black + "]PW[" + white + "]",
+        sgf: g_kifu,
         enableWheel: false,
         enableKeys: false
         // move: 1000	
@@ -377,18 +385,9 @@
 
       disable_board();
       read_time();
-      // play_audio();
 
     }
 
-    //play a audio
-    //TODO check if stone is dead
-    //TODO 用时解决
-    //TODO timer
-    var play_audio = function () {
-      var audio = new Audio('static/move.mp3');
-      audio.play();
-    }
 
     var disable_board = function () {
       score = document.getElementById("game-score");
@@ -402,17 +401,16 @@
     var enable_board = function () {
       var last_steps = myplayer.kifuReader.path.m;
       var turn = last_steps % 4;
-
-      if (turn == 1 && username == game.users.white) { //black
+      if (turn == 0 && username == game.users.black) { //black 0
         add_event();
       }
-      if (turn == 2 && username == game.users.black0) { //black
+      if (turn == 1 && username == game.users.white) { //white 0
         add_event();
       }
-      if (turn == 3 && username == game.users.white0) { //black
+      if (turn == 2 && username == game.users.black0) { //black 1
         add_event();
       }
-      if (turn == 0 && username == game.users.black) { //black
+      if (turn == 3 && username == game.users.white0) { //white 1
         add_event();
       }
 
@@ -467,12 +465,7 @@
 
           myplayer.update();
           if (myplayer.kifuReader.node.BL == 0) {
-
-
             game_over("白超时胜")
-            // game.game_over = true;
-            // game.info.innerHTML = 'GAME OVER';
-            // game.info.className = '';
           }
         }, 1000);
       }
@@ -483,11 +476,7 @@
 
           myplayer.update();
           if (myplayer.kifuReader.node.WL == 0) {
-
             game_over("黑超时胜")
-            // game.game_over = true;
-            // game.info.innerHTML = 'GAME OVER';
-            // game.info.className = '';
           }
         }, 1000);
       }
@@ -554,7 +543,6 @@
         // show next move
         player.next(player.kifuReader.node.children.length - 1);
         read_time();
-        // play_audio();
       }
     }
   });
