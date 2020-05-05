@@ -96,7 +96,7 @@ io.on('connection', function (socket) {
         var game = activeGames[msg.gameId];
         if (game.users.black0 == 0) {
             game.users.black0 = socket.userId
-        } else {
+        } else if (game.users.white0 == 0) {
             game.users.white0 = socket.userId
         }
         console.log(getFormattedDate() + 'begin to view game: ' + msg.gameId);
