@@ -174,6 +174,10 @@
       alert(myplayer.kifu.toSgf());
     });
 
+    $('#game-info').on('click', function () {
+      set_info();
+    });
+
 
 
 
@@ -491,6 +495,12 @@
       }
 
       // myplayer.update();
+    }
+
+    var set_info = function () {
+      myplayer.kifu.info["PB"] = "hello world";
+      myplayer.loadSgf(myplayer.kifu.toSgf(), 1000);
+      myplayer.update();
     }
 
     var game_over = function (result) {

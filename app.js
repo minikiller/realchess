@@ -1,9 +1,12 @@
 var express = require('express');
 var app = express();
+var fs = require('fs')
 app.use(express.static('public'));
 app.use(express.static('dashboard'));
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var https = require('https');
+
+
+var io = require('socket.io')(https);
 
 var port = process.env.PORT || 3000;
 
@@ -173,6 +176,9 @@ io.on('connection', function (socket) {
 
 });
 
-http.listen(port, function () {
+https.createServer({
+    key: fs.readFileSync('server.key'),
+    cert: fs.readFileSync('server.cert')
+  }, app).listen(port, function () {
     console.log(getFormattedDate() + 'listening on *: ' + port);
 });
