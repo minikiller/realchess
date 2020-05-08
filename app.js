@@ -3,12 +3,19 @@ var app = express();
 var fs = require('fs')
 app.use(express.static('public'));
 app.use(express.static('dashboard'));
-var http = require('http').Server(app);
+var https = require('https');
+// var http = require('http').Server(app);
+var https = require('https').Server({
+    key: fs.readFileSync('server.key'),
+    cert: fs.readFileSync('server.cert')
+}, app);
 
-
-var io = require('socket.io')(http);
-
+var io = require('socket.io')(https);
 var port = process.env.PORT || 3000;
+
+https.listen(port, function () {
+    console.log('listening on *:' + port);
+});
 
 var lobbyUsers = {};
 var users = {};
@@ -176,13 +183,7 @@ io.on('connection', function (socket) {
 
 });
 
-http.listen(port, function() {
-    console.log('listening on *: ' + port);
-});
-
-//   https.createServer({
-//     key: fs.readFileSync('server.key'),
-//     cert: fs.readFileSync('server.cert')
-//   }, app).listen(port, function () {
-//     console.log(getFormattedDate() + 'listening on *: ' + port);
+// http.listen(port, function() {
+//     console.log('listening on *: ' + port);
 // });
+

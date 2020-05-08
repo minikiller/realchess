@@ -18,9 +18,8 @@
     var white_time = total_time;
     var white, black;
     socket = io.connect("/");
-
+    // socket = io.connect('https://localhost:3000', { secure: true });
     var connection = new RTCMultiConnection();
-    // socket=io.connect('https://localhost');
 
     //////////////////////////////
     // Socket.io handlers
@@ -79,8 +78,8 @@
 
       // comment-out below line if you do not have your own socket.io server
       // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
-      connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
-      // connection.socketURL = 'https://192.236.162.65:9001/';
+      // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+      connection.socketURL = 'https://192.236.162.65:9001/';
 
       connection.socketMessageEvent = 'video-conference-demo';
 
@@ -89,61 +88,74 @@
         video: true,
         data: true
       };
-      connection.videosContainer = document.getElementById('videos-container');
-      connection.onstream = function (event) {
-        var existing = document.getElementById(event.streamid);
-        if (existing && existing.parentNode) {
-          existing.parentNode.removeChild(existing);
-        }
+      // connection.videosContainer = document.getElementById('videos-container');
+      // connection.onstream = function (event) {
+      //   var existing = document.getElementById(event.streamid);
+      //   if (existing && existing.parentNode) {
+      //     existing.parentNode.removeChild(existing);
+      //   }
 
-        event.mediaElement.removeAttribute('src');
-        event.mediaElement.removeAttribute('srcObject');
-        event.mediaElement.muted = true;
-        event.mediaElement.volume = 0;
+      //   event.mediaElement.removeAttribute('src');
+      //   event.mediaElement.removeAttribute('srcObject');
+      //   event.mediaElement.muted = true;
+      //   event.mediaElement.volume = 0;
 
-        var video = document.createElement('video');
+      //   var video = document.createElement('video');
 
-        try {
-          video.setAttributeNode(document.createAttribute('autoplay'));
-          video.setAttributeNode(document.createAttribute('playsinline'));
-        } catch (e) {
-          video.setAttribute('autoplay', true);
-          video.setAttribute('playsinline', true);
-        }
+      //   try {
+      //     video.setAttributeNode(document.createAttribute('autoplay'));
+      //     video.setAttributeNode(document.createAttribute('playsinline'));
+      //   } catch (e) {
+      //     video.setAttribute('autoplay', true);
+      //     video.setAttribute('playsinline', true);
+      //   }
 
-        if (event.type === 'local') {
-          video.volume = 0;
-          try {
-            video.setAttributeNode(document.createAttribute('muted'));
-          } catch (e) {
-            video.setAttribute('muted', true);
-          }
-        }
-        video.srcObject = event.stream;
+      //   if (event.type === 'local') {
+      //     video.volume = 0;
+      //     try {
+      //       video.setAttributeNode(document.createAttribute('muted'));
+      //     } catch (e) {
+      //       video.setAttribute('muted', true);
+      //     }
+      //   }
+      //   video.srcObject = event.stream;
 
-        var width = parseInt(connection.videosContainer.clientWidth / 3) - 20;
-        var mediaElement = getHTMLMediaElement(video, {
-          title: event.userid,
-          buttons: ['full-screen'],
-          width: width,
-          showOnMouseEnter: false
-        });
+      //   var width = parseInt(connection.videosContainer.clientWidth / 3) - 20;
+      //   var mediaElement = getHTMLMediaElement(video, {
+      //     title: event.userid,
+      //     buttons: ['full-screen'],
+      //     width: width,
+      //     showOnMouseEnter: false
+      //   });
 
-        connection.videosContainer.appendChild(mediaElement);
+      //   connection.videosContainer.appendChild(mediaElement);
 
-        setTimeout(function () {
-          mediaElement.media.play();
-        }, 5000);
+      //   setTimeout(function () {
+      //     mediaElement.media.play();
+      //   }, 5000);
 
-        mediaElement.id = event.streamid;
-        if (event.type === 'local') {
-          connection.socket.on('disconnect', function () {
-            if (!connection.getAllParticipants().length) {
-              location.reload();
-            }
-          });
+      //   mediaElement.id = event.streamid;
+      //   if (event.type === 'local') {
+      //     connection.socket.on('disconnect', function () {
+      //       if (!connection.getAllParticipants().length) {
+      //         location.reload();
+      //       }
+      //     });
+      //   }
+      // };
+      connection.mediaConstraints = {
+        audio: true,
+        video: {
+          mandatory: {
+            minWidth: 320,
+            maxWidth: 320,
+            minHeight: 180,
+            maxHeight: 180
+          },
+          optional: []
         }
       };
+      connection.openOrJoin(msg.game.id);
       $('#page-lobby').hide();
       $('#page-game').css("visibility", "visible");
 

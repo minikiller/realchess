@@ -1,0 +1,66 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <script src="wgo/RTCMultiConnection.min.js"></script>
+    <script src="lib/socket.io-2.3.0.js"></script>
+
+
+</head>
+
+<body>
+    <hr><button id="apply-constraints">Apply Constraints</button>
+    <hr>
+    <script>
+        var connection = new RTCMultiConnection();
+
+        // this line is VERY_important
+        connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+
+        // if you want audio+video conferencing
+        connection.session = {
+            audio: true,
+            video: true
+        };
+        connection.mediaConstraints = {
+            audio: true,
+            video: {
+                mandatory: {
+                    minWidth: 320,
+                    maxWidth: 320,
+                    minHeight: 180,
+                    maxHeight: 180
+                },
+                optional: []
+            }
+        };
+
+        connection.openOrJoin('your-room-id');
+
+
+
+        document.getElementById('apply-constraints').onclick = function () {
+
+            this.disabled = true;
+
+            var width = 180;
+            var height = 360;
+
+            var supports = navigator.mediaDevices.getSupportedConstraints();
+
+            var constraints = {};
+            if (supports.width && supports.height) {
+                constraints = {
+                    width: width,
+                    height: height
+                };
+            }
+
+            connection.applyConstraints({
+                video: constraints
+            });
+        };
+    </script>
+</body>
+
+</html>
