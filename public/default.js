@@ -88,7 +88,7 @@
         video: true,
         data: true
       };
-      // connection.videosContainer = document.getElementById('videos-container');
+      connection.videosContainer = document.getElementById('videos-container');
       // connection.onstream = function (event) {
       //   var existing = document.getElementById(event.streamid);
       //   if (existing && existing.parentNode) {
