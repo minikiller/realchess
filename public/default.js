@@ -80,6 +80,7 @@
       // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
       // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
       connection.socketURL = "https://bibiweiqi.com:9001/";
+      connection.userid = username;
 
       connection.socketMessageEvent = "video-conference-demo";
 
@@ -139,8 +140,8 @@
 
           var width = parseInt(connection.videosContainer.clientWidth / 3) - 20;
           var mediaElement = getHTMLMediaElement(video, {
-            title: username,
-            // title: event.userid,
+            // title: username,
+            title: event.userid,
             buttons: ["full-screen"],
             width: width,
             showOnMouseEnter: false,
