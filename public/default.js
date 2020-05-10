@@ -23,7 +23,7 @@
     var white, black;
     socket = io.connect("/");
     // socket = io.connect('https://localhost:3000', { secure: true });
-    var connection = new RTCMultiConnection();
+    // var connection = new RTCMultiConnection();
 
     //////////////////////////////
     // Socket.io handlers
@@ -64,6 +64,199 @@
       }
     });
 
+    var connection = new RTCMultiConnection();
+
+    // by default, socket.io server is assumed to be deployed on your own URL
+    connection.socketURL = "https://bibiweiqi.com:9001/";
+
+    // comment-out below line if you do not have your own socket.io server
+    // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+
+    connection.socketMessageEvent = "video-conference-demo";
+    // connection.changeUserId(username);
+    connection.session = {
+      audio: true,
+      video: true,
+    };
+
+    connection.sdpConstraints.mandatory = {
+      OfferToReceiveAudio: true,
+      OfferToReceiveVideo: true,
+    };
+
+    // STAR_FIX_VIDEO_AUTO_PAUSE_ISSUES
+    // via: https://github.com/muaz-khan/RTCMultiConnection/issues/778#issuecomment-524853468
+    var bitrates = 512;
+    var resolutions = "Ultra-HD";
+    var videoConstraints = {};
+
+    if (resolutions == "HD") {
+      videoConstraints = {
+        width: {
+          ideal: 1280,
+        },
+        height: {
+          ideal: 720,
+        },
+        frameRate: 30,
+      };
+    }
+
+    if (resolutions == "Ultra-HD") {
+      videoConstraints = {
+        width: {
+          ideal: 1920,
+        },
+        height: {
+          ideal: 1080,
+        },
+        frameRate: 30,
+      };
+    }
+
+    connection.mediaConstraints = {
+      video: videoConstraints,
+      audio: true,
+    };
+
+    var CodecsHandler = connection.CodecsHandler;
+
+    connection.processSdp = function (sdp) {
+      var codecs = "vp8";
+
+      if (codecs.length) {
+        sdp = CodecsHandler.preferCodec(sdp, codecs.toLowerCase());
+      }
+
+      if (resolutions == "HD") {
+        sdp = CodecsHandler.setApplicationSpecificBandwidth(sdp, {
+          audio: 128,
+          video: bitrates,
+          screen: bitrates,
+        });
+
+        sdp = CodecsHandler.setVideoBitrates(sdp, {
+          min: bitrates * 8 * 1024,
+          max: bitrates * 8 * 1024,
+        });
+      }
+
+      if (resolutions == "Ultra-HD") {
+        sdp = CodecsHandler.setApplicationSpecificBandwidth(sdp, {
+          audio: 128,
+          video: bitrates,
+          screen: bitrates,
+        });
+
+        sdp = CodecsHandler.setVideoBitrates(sdp, {
+          min: bitrates * 8 * 1024,
+          max: bitrates * 8 * 1024,
+        });
+      }
+
+      return sdp;
+    };
+    // END_FIX_VIDEO_AUTO_PAUSE_ISSUES
+
+    // https://www.rtcmulticonnection.org/docs/iceServers/
+    // use your own TURN-server here!
+    connection.iceServers = [
+      {
+        urls: [
+          "stun:stun.l.google.com:19302",
+          "stun:stun1.l.google.com:19302",
+          "stun:stun2.l.google.com:19302",
+          "stun:stun.l.google.com:19302?transport=udp",
+        ],
+      },
+    ];
+
+    connection.videosContainer = document.getElementById("videos-container");
+    connection.onstream = function (event) {
+      var existing = document.getElementById(event.streamid);
+      if (existing && existing.parentNode) {
+        existing.parentNode.removeChild(existing);
+      }
+
+      event.mediaElement.removeAttribute("src");
+      event.mediaElement.removeAttribute("srcObject");
+      event.mediaElement.muted = true;
+      event.mediaElement.volume = 0;
+
+      var video = document.createElement("video");
+
+      try {
+        video.setAttributeNode(document.createAttribute("autoplay"));
+        video.setAttributeNode(document.createAttribute("playsinline"));
+      } catch (e) {
+        video.setAttribute("autoplay", true);
+        video.setAttribute("playsinline", true);
+      }
+
+      if (event.type === "local") {
+        video.volume = 0;
+        try {
+          video.setAttributeNode(document.createAttribute("muted"));
+        } catch (e) {
+          video.setAttribute("muted", true);
+        }
+      }
+      video.srcObject = event.stream;
+
+      var width = parseInt(connection.videosContainer.clientWidth / 3) - 20;
+      var mediaElement = getHTMLMediaElement(video, {
+        title: event.userid,
+        buttons: ["full-screen"],
+        width: width,
+        showOnMouseEnter: false,
+      });
+
+      connection.videosContainer.appendChild(mediaElement);
+
+      setTimeout(function () {
+        mediaElement.media.play();
+      }, 5000);
+
+      mediaElement.id = event.streamid;
+
+      // to keep room-id in cache
+      localStorage.setItem(connection.socketMessageEvent, connection.sessionid);
+
+      chkRecordConference.parentNode.style.display = "none";
+
+      if (chkRecordConference.checked === true) {
+        btnStopRecording.style.display = "inline-block";
+        recordingStatus.style.display = "inline-block";
+
+        var recorder = connection.recorder;
+        if (!recorder) {
+          recorder = RecordRTC([event.stream], {
+            type: "video",
+          });
+          recorder.startRecording();
+          connection.recorder = recorder;
+        } else {
+          recorder.getInternalRecorder().addStreams([event.stream]);
+        }
+
+        if (!connection.recorder.streams) {
+          connection.recorder.streams = [];
+        }
+
+        connection.recorder.streams.push(event.stream);
+        recordingStatus.innerHTML =
+          "Recording " + connection.recorder.streams.length + " streams";
+      }
+
+      if (event.type === "local") {
+        connection.socket.on("disconnect", function () {
+          if (!connection.getAllParticipants().length) {
+            location.reload();
+          }
+        });
+      }
+    };
+
     socket.on("joingame", function (msg) {
       console.log("joined as game id: " + msg.game.id);
       playerColor = msg.color;
@@ -73,141 +266,7 @@
       // $('#page-lobby').hide();
       // $('#page-game').show();
       console.log(123);
-      // by default, socket.io server is assumed to be deployed on your own URL
-      // connection.socketURL = 'http://localhost:9001/';
-
-      // comment-out below line if you do not have your own socket.io server
-      // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
-      // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
-      connection.socketURL = "https://bibiweiqi.com:9001/";
-      connection.userid = username;
-
-      connection.socketMessageEvent = "video-conference-demo";
-
-      connection.session = {
-        audio: true,
-        video: true,
-        data: true,
-      };
-      connection.videosContainer = document.getElementById("videos-container");
-      connection.sdpConstraints.mandatory = {
-        OfferToReceiveAudio: true,
-        OfferToReceiveVideo: true,
-      };
-      // https://www.rtcmulticonnection.org/docs/iceServers/
-      // use your own TURN-server here!
-      connection.iceServers = [
-        {
-          urls: [
-            "stun:stun.l.google.com:19302",
-            "stun:stun1.l.google.com:19302",
-            "stun:stun2.l.google.com:19302",
-            "stun:stun.l.google.com:19302?transport=udp",
-          ],
-        },
-      ];
-      connection.onstream = function (event) {
-        {
-          var existing = document.getElementById(event.streamid);
-          if (existing && existing.parentNode) {
-            existing.parentNode.removeChild(existing);
-          }
-
-          event.mediaElement.removeAttribute("src");
-          event.mediaElement.removeAttribute("srcObject");
-          event.mediaElement.muted = true;
-          event.mediaElement.volume = 0;
-
-          var video = document.createElement("video");
-
-          try {
-            video.setAttributeNode(document.createAttribute("autoplay"));
-            video.setAttributeNode(document.createAttribute("playsinline"));
-          } catch (e) {
-            video.setAttribute("autoplay", true);
-            video.setAttribute("playsinline", true);
-          }
-
-          if (event.type === "local") {
-            video.volume = 0;
-            try {
-              video.setAttributeNode(document.createAttribute("muted"));
-            } catch (e) {
-              video.setAttribute("muted", true);
-            }
-          }
-          video.srcObject = event.stream;
-
-          var width = parseInt(connection.videosContainer.clientWidth / 3) - 20;
-          var mediaElement = getHTMLMediaElement(video, {
-            // title: username,
-            title: event.userid,
-            buttons: ["full-screen"],
-            width: width,
-            showOnMouseEnter: false,
-          });
-
-          connection.videosContainer.appendChild(mediaElement);
-
-          setTimeout(function () {
-            mediaElement.media.play();
-          }, 5000);
-
-          mediaElement.id = event.streamid;
-
-          // to keep room-id in cache
-          localStorage.setItem(
-            connection.socketMessageEvent,
-            connection.sessionid
-          );
-
-          chkRecordConference.parentNode.style.display = "none";
-
-          if (chkRecordConference.checked === true) {
-            btnStopRecording.style.display = "inline-block";
-            recordingStatus.style.display = "inline-block";
-
-            var recorder = connection.recorder;
-            if (!recorder) {
-              recorder = RecordRTC([event.stream], {
-                type: "video",
-              });
-              recorder.startRecording();
-              connection.recorder = recorder;
-            } else {
-              recorder.getInternalRecorder().addStreams([event.stream]);
-            }
-
-            if (!connection.recorder.streams) {
-              connection.recorder.streams = [];
-            }
-
-            connection.recorder.streams.push(event.stream);
-            recordingStatus.innerHTML =
-              "Recording " + connection.recorder.streams.length + " streams";
-          }
-
-          if (event.type === "local") {
-            connection.socket.on("disconnect", function () {
-              if (!connection.getAllParticipants().length) {
-                location.reload();
-              }
-            });
-          }
-        }
-      };
-      connection.mediaConstraints = {
-        audio: true,
-        video: {
-          mandatory: {
-            minWidth: 320,
-            maxWidth: 320,
-            minHeight: 180,
-            maxHeight: 180,
-          },
-          optional: [],
-        },
-      };
+      // connection.userid = username;
       connection.openOrJoin(msg.game.id);
       $("#page-lobby").hide();
       $("#page-game").css("visibility", "visible");
