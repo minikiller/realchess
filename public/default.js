@@ -88,7 +88,9 @@
     // STAR_FIX_VIDEO_AUTO_PAUSE_ISSUES
     // via: https://github.com/muaz-khan/RTCMultiConnection/issues/778#issuecomment-524853468
     var bitrates = 512;
-    var resolutions = "Ultra-HD";
+    var resolutions = "HD";
+    // var resolutions = "Ultra-HD";
+
     var videoConstraints = {};
 
     if (resolutions == "HD") {
@@ -207,7 +209,15 @@
       var width = parseInt(connection.videosContainer.clientWidth / 5) - 20;
       var mediaElement = getHTMLMediaElement(video, {
         title: event.userid,
-        buttons: ["full-screen"],
+        buttons: [
+          // "mute-audio",
+          // "mute-video",
+          // "record-audio",
+          // "record-video",
+          // "full-screen",
+          // "volume-slider",
+          // "stop",
+        ],
         width: width,
         showOnMouseEnter: false,
       });
@@ -353,7 +363,7 @@
     //////////////////////////////
     $("#game-join").on("click", function () {
       connection.userid = username;
-      connection.openOrJoin("public-room", (isRoomJoined, roomid, error) => {
+      connection.openOrJoin(game.id, (isRoomJoined, roomid, error) => {
         console.log(isRoomJoined, roomid, error);
       });
     });
