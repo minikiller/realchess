@@ -67,6 +67,7 @@
     var connection = new RTCMultiConnection();
 
     // by default, socket.io server is assumed to be deployed on your own URL
+    // connection.socketURL = "https://192.168.1.34:9001/";
     connection.socketURL = "https://bibiweiqi.com:9001/";
 
     // comment-out below line if you do not have your own socket.io server
@@ -267,7 +268,7 @@
       // $('#page-game').show();
       console.log(123);
       // connection.userid = username;
-      connection.openOrJoin(msg.game.id);
+      // connection.openOrJoin(msg.game.id);
       $("#page-lobby").hide();
       $("#page-game").css("visibility", "visible");
     });
@@ -326,6 +327,7 @@
     // Menus
     //////////////////////////////
     $("#game-join").on("click", function () {
+      connection.userid = username;
       connection.openOrJoin("public-room", (isRoomJoined, roomid, error) => {
         console.log(isRoomJoined, roomid, error);
       });
