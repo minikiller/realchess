@@ -204,7 +204,7 @@
       }
       video.srcObject = event.stream;
 
-      var width = parseInt(connection.videosContainer.clientWidth / 3) - 20;
+      var width = parseInt(connection.videosContainer.clientWidth / 5) - 20;
       var mediaElement = getHTMLMediaElement(video, {
         title: event.userid,
         buttons: ["full-screen"],
@@ -255,6 +255,31 @@
             location.reload();
           }
         });
+      }
+    };
+
+    connection.onstreamended = function (event) {
+      var mediaElement = document.getElementById(event.streamid);
+      if (mediaElement) {
+        mediaElement.parentNode.removeChild(mediaElement);
+      }
+    };
+
+    connection.onMediaError = function (e) {
+      if (e.message === "Concurrent mic process limit.") {
+        if (DetectRTC.audioInputDevices.length <= 1) {
+          alert(
+            "Please select external microphone. Check github issue number 483."
+          );
+          return;
+        }
+
+        var secondaryMic = DetectRTC.audioInputDevices[1].deviceId;
+        connection.mediaConstraints.audio = {
+          deviceId: secondaryMic,
+        };
+
+        connection.join(connection.sessionid);
       }
     };
 

@@ -6,7 +6,7 @@
   transform: translateY(-50%);
 }
 
-/* #page-lobby{
+#page-lobby{
     display: none;
     /* visibility: hidden; */
 } 
@@ -14,7 +14,7 @@
 #page-game {
     /* display: none; */
     visibility: hidden;
-}*/
+}
 
 * {
     box-sizing: border-box;
