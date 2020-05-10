@@ -1,7 +1,8 @@
 # Real Chess
-Real-time go chess game 
 
-//TODO upgrade socketio to recent versino 
+Real-time go chess game
+
+//FIXME upgrade socketio to recent version。
 
 //FIXME add digital to stone
 
@@ -9,8 +10,7 @@ Real-time go chess game
 
 //TODO add exception check to express
 
-//TODO audio 优化
-
+//TODO audio 优化,不需要每次 new
 
 ### need to do
 
@@ -21,18 +21,22 @@ Real-time go chess game
 ### player.js 287 lines update event produce
 
 ### tag
+
 - git tag v0.01 1b9594f -m "完成行棋效果的增加，在继续四人下棋前的保存" (add a tag)
-- git push --tags (push to server) 
+- git push --tags (push to server)
 
 - git tag -d v0.01 （delete a tag）
 - git push origin :refs/tags/v0.01 (push to server)
 
-### git branch 
+### git branch
+
 - git checkout -b dev_game4person
 - git push --set-upstream origin dev_game4person
 
 ### express https
+
 https://timonweb.com/posts/running-expressjs-server-over-https/
 
 ### WEBRTC
-- https://github.com/muaz-khan/RTCMultiConnection/blob/master/docs/api.md   
+
+- https://github.com/muaz-khan/RTCMultiConnection/blob/master/docs/api.md
