@@ -15,7 +15,7 @@
         var connection = new RTCMultiConnection();
 
         // this line is VERY_important
-        connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+        connection.socketURL = 'https://bibiweiqi.com:9001/';
 
         // if you want audio+video conferencing
         connection.session = {
@@ -39,27 +39,7 @@
 
 
 
-        document.getElementById('apply-constraints').onclick = function () {
-
-            this.disabled = true;
-
-            var width = 180;
-            var height = 360;
-
-            var supports = navigator.mediaDevices.getSupportedConstraints();
-
-            var constraints = {};
-            if (supports.width && supports.height) {
-                constraints = {
-                    width: width,
-                    height: height
-                };
-            }
-
-            connection.applyConstraints({
-                video: constraints
-            });
-        };
+         
     </script>
 </body>
 

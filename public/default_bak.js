@@ -89,110 +89,58 @@
         data: true,
       };
       connection.videosContainer = document.getElementById("videos-container");
-      connection.sdpConstraints.mandatory = {
-        OfferToReceiveAudio: true,
-        OfferToReceiveVideo: true,
-      };
-      // https://www.rtcmulticonnection.org/docs/iceServers/
-      // use your own TURN-server here!
-      connection.iceServers = [
-        {
-          urls: [
-            "stun:stun.l.google.com:19302",
-            "stun:stun1.l.google.com:19302",
-            "stun:stun2.l.google.com:19302",
-            "stun:stun.l.google.com:19302?transport=udp",
-          ],
-        },
-      ];
       connection.onstream = function (event) {
-        {
-          var existing = document.getElementById(event.streamid);
-          if (existing && existing.parentNode) {
-            existing.parentNode.removeChild(existing);
-          }
+        var existing = document.getElementById(event.streamid);
+        if (existing && existing.parentNode) {
+          existing.parentNode.removeChild(existing);
+        }
 
-          event.mediaElement.removeAttribute("src");
-          event.mediaElement.removeAttribute("srcObject");
-          event.mediaElement.muted = true;
-          event.mediaElement.volume = 0;
+        event.mediaElement.removeAttribute('src');
+        event.mediaElement.removeAttribute('srcObject');
+        event.mediaElement.muted = true;
+        event.mediaElement.volume = 0;
 
-          var video = document.createElement("video");
+        var video = document.createElement('video');
 
+        try {
+          video.setAttributeNode(document.createAttribute('autoplay'));
+          video.setAttributeNode(document.createAttribute('playsinline'));
+        } catch (e) {
+          video.setAttribute('autoplay', true);
+          video.setAttribute('playsinline', true);
+        }
+
+        if (event.type === 'local') {
+          video.volume = 0;
           try {
-            video.setAttributeNode(document.createAttribute("autoplay"));
-            video.setAttributeNode(document.createAttribute("playsinline"));
+            video.setAttributeNode(document.createAttribute('muted'));
           } catch (e) {
-            video.setAttribute("autoplay", true);
-            video.setAttribute("playsinline", true);
+            video.setAttribute('muted', true);
           }
+        }
+        video.srcObject = event.stream;
 
-          if (event.type === "local") {
-            video.volume = 0;
-            try {
-              video.setAttributeNode(document.createAttribute("muted"));
-            } catch (e) {
-              video.setAttribute("muted", true);
+        var width = parseInt(connection.videosContainer.clientWidth / 3) - 20;
+        var mediaElement = getHTMLMediaElement(video, {
+          title: event.userid,
+          buttons: ['full-screen'],
+          width: width,
+          showOnMouseEnter: false
+        });
+
+        connection.videosContainer.appendChild(mediaElement);
+
+        setTimeout(function () {
+          mediaElement.media.play();
+        }, 5000);
+
+        mediaElement.id = event.streamid;
+        if (event.type === 'local') {
+          connection.socket.on('disconnect', function () {
+            if (!connection.getAllParticipants().length) {
+              location.reload();
             }
-          }
-          video.srcObject = event.stream;
-
-          var width = parseInt(connection.videosContainer.clientWidth / 3) - 20;
-          var mediaElement = getHTMLMediaElement(video, {
-            title: username,
-            // title: event.userid,
-            buttons: ["full-screen"],
-            width: width,
-            showOnMouseEnter: false,
           });
-
-          connection.videosContainer.appendChild(mediaElement);
-
-          setTimeout(function () {
-            mediaElement.media.play();
-          }, 5000);
-
-          mediaElement.id = event.streamid;
-
-          // to keep room-id in cache
-          localStorage.setItem(
-            connection.socketMessageEvent,
-            connection.sessionid
-          );
-
-          chkRecordConference.parentNode.style.display = "none";
-
-          if (chkRecordConference.checked === true) {
-            btnStopRecording.style.display = "inline-block";
-            recordingStatus.style.display = "inline-block";
-
-            var recorder = connection.recorder;
-            if (!recorder) {
-              recorder = RecordRTC([event.stream], {
-                type: "video",
-              });
-              recorder.startRecording();
-              connection.recorder = recorder;
-            } else {
-              recorder.getInternalRecorder().addStreams([event.stream]);
-            }
-
-            if (!connection.recorder.streams) {
-              connection.recorder.streams = [];
-            }
-
-            connection.recorder.streams.push(event.stream);
-            recordingStatus.innerHTML =
-              "Recording " + connection.recorder.streams.length + " streams";
-          }
-
-          if (event.type === "local") {
-            connection.socket.on("disconnect", function () {
-              if (!connection.getAllParticipants().length) {
-                location.reload();
-              }
-            });
-          }
         }
       };
       connection.mediaConstraints = {
