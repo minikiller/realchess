@@ -1,258 +1,255 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
+  <head>
+    <meta charset="utf-8" />
+    <title>WGo</title>
+    <script type="text/javascript" src="wgo/wgo.js"></script>
+    <script type="text/javascript" src="wgo/kifu.js"></script>
+    <script type="text/javascript" src="wgo/sgfparser.js"></script>
+    <script type="text/javascript" src="wgo/player.js"></script>
+    <script type="text/javascript" src="wgo/basicplayer.js"></script>
+    <script type="text/javascript" src="wgo/basicplayer.component.js"></script>
+    <script type="text/javascript" src="wgo/basicplayer.infobox.js"></script>
+    <script type="text/javascript" src="wgo/basicplayer.commentbox.js"></script>
+    <script type="text/javascript" src="wgo/basicplayer.control.js"></script>
+    <script type="text/javascript" src="wgo/player.editable.js"></script>
+    <script type="text/javascript" src="wgo/scoremode.js"></script>
+    <script type="text/javascript" src="wgo/player.permalink.js"></script>
+    <script type="text/javascript" src="i18n/i18n.zh.js"></script>
 
-<head>
-	<meta charset="utf-8">
-	<title>WGo</title>
-	<script type="text/javascript" src="wgo/wgo.js"></script>
-	<script type="text/javascript" src="wgo/kifu.js"></script>
-	<script type="text/javascript" src="wgo/sgfparser.js"></script>
-	<script type="text/javascript" src="wgo/player.js"></script>
-	<script type="text/javascript" src="wgo/basicplayer.js"></script>
-	<script type="text/javascript" src="wgo/basicplayer.component.js"></script>
-	<script type="text/javascript" src="wgo/basicplayer.infobox.js"></script>
-	<script type="text/javascript" src="wgo/basicplayer.commentbox.js"></script>
-	<script type="text/javascript" src="wgo/basicplayer.control.js"></script>
-	<script type="text/javascript" src="wgo/player.editable.js"></script>
-	<script type="text/javascript" src="wgo/scoremode.js"></script>
-	<script type="text/javascript" src="wgo/player.permalink.js"></script>
-	<script type="text/javascript" src="i18n/i18n.zh.js"></script>
+    <link rel="stylesheet" type="text/css" href="wgo/wgo.player.css" />
+    <!-- <link rel="stylesheet" type="text/css" href="themes/wgo.player.dark.css" /> -->
 
-	<link rel="stylesheet" type="text/css" href="wgo/wgo.player.css" />
-	<!-- <link rel="stylesheet" type="text/css" href="themes/wgo.player.dark.css" /> -->
+    <style>
+      body {
+        background-color: #000;
+        color: white;
+      }
+    </style>
+  </head>
 
-	<style>
-		body {
-			background-color: #000;
-			color: white;
-		}
-	</style>
+  <body>
+    <h1 style="font-family: Consolas;">WGo.js Player demo - Dark Theme</h1>
 
+    <div id="player" style="width: 60%; margin: 0;"></div>
+    <div>
+      <button id="begin" onclick="begin()">begin</button>
+    </div>
+    <div>
+      <button id="black" onclick="black()">black</button>
+    </div>
+    <div>
+      <button id="white" onclick="white()">white</button>
+    </div>
+    <div>
+      <button id="random" onclick="random()">random</button>
+    </div>
+    <div>
+      <button id="info" onclick="info()">info</button>
+    </div>
+    <script type="text/javascript">
+      var myboard, myplayer, _ev_move, _ev_click, _ev_out;
+      var set_info = function () {
+        myplayer.kifu.info("PB") = "hello world";
+        myplayer.loadSgf(myplayer.kifu.toSgf(), 1000);
+        myplayer.update();
+      };
+      var edit_board_mouse_move = function (x, y) {
+        if (myplayer.frozen || (this._lastX == x && this._lastY == y)) return;
 
-</head>
+        this._lastX = x;
+        this._lastY = y;
+        console.log("x value is " + x + ",y value is " + y);
+        if (this._last_mark) {
+          myboard.removeObject(this._last_mark);
+        }
 
-<body>
-	<h1 style="font-family: Consolas">WGo.js Player demo - Dark Theme</h1>
+        if (x != -1 && y != -1 && myplayer.kifuReader.game.isValid(x, y)) {
+          this._last_mark = {
+            type: "outline",
+            x: x,
+            y: y,
+            c: myplayer.kifuReader.game.turn,
+          };
+          myboard.addObject(this._last_mark);
+        } else {
+          delete this._last_mark;
+        }
+      };
+      var play = function (x, y) {
+        // ignore invalid move
+        if (myplayer.frozen || !myplayer.kifuReader.game.isValid(x, y)) return;
 
-	<div id="player" style="width: 60%; margin: 0">
-	</div>
-	<div>
-		<button id="begin" onclick="begin()">begin</button>
-	</div>
-	<div>
-		<button id="black" onclick="black()">black</button>
-	</div>
-	<div>
-		<button id="white" onclick="white()">white</button>
-	</div>
-	<div>
-		<button id="random" onclick="random()">random</button>
-	</div>
-	<div>
-		<button id="info" onclick="info()">info</button>
-	</div>
-	<script type="text/javascript">
-		var myboard, myplayer, _ev_move, _ev_click, _ev_out
-		var set_info = function () {
-			myplayer.kifu.info("PB") = "hello world";
-			myplayer.loadSgf(myplayer.kifu.toSgf(), 1000);
-			myplayer.update();
-		}
-		var edit_board_mouse_move = function (x, y) {
-			if (myplayer.frozen || (this._lastX == x && this._lastY == y)) return;
+        var node;
+        // console.log(myplayer.kifuReader.game.turn)
+        turn = myplayer.kifuReader.game.turn;
+        // create new node
+        if (x == null) {
+          node = new WGo.KNode({
+            move: {
+              pass: true,
+              c: myplayer.kifuReader.game.turn,
+            },
+            BL: 100,
+            WL: 200,
+            _edited: true,
+          });
+        } else {
+          node = new WGo.KNode({
+            move: {
+              x: x,
+              y: y,
+              c: myplayer.kifuReader.game.turn,
+            },
+            BL: 100,
+            WL: 200,
+            _edited: true,
+          });
+        }
 
-			this._lastX = x;
-			this._lastY = y;
-			console.log("x value is " + x + ",y value is " + y)
-			if (this._last_mark) {
-				myboard.removeObject(this._last_mark);
-			}
+        // append new node to the current kifu
+        myplayer.kifuReader.node.appendChild(node);
 
-			if (x != -1 && y != -1 && myplayer.kifuReader.game.isValid(x, y)) {
-				this._last_mark = {
-					type: "outline",
-					x: x,
-					y: y,
-					c: myplayer.kifuReader.game.turn
-				};
-				myboard.addObject(this._last_mark);
-			}
-			else {
-				delete this._last_mark;
-			}
-		}
-		var play = function (x, y) {
-			// ignore invalid move
-			if (myplayer.frozen || !myplayer.kifuReader.game.isValid(x, y)) return;
+        // show next move
+        myplayer.next(myplayer.kifuReader.node.children.length - 1);
 
-			var node;
-			// console.log(myplayer.kifuReader.game.turn)
-			turn = myplayer.kifuReader.game.turn
-			// create new node
-			if (x == null) {
-				node = new WGo.KNode({
-					move: {
-						pass: true,
-						c: myplayer.kifuReader.game.turn
-					},
-					BL: 100,
-					WL: 200,
-					_edited: true
-				});
-			}
-			else {
-				node = new WGo.KNode({
-					move: {
-						x: x,
-						y: y,
-						c: myplayer.kifuReader.game.turn
-					},
-					BL: 100,
-					WL: 200,
-					_edited: true
-				});
-			}
+        myboard.removeEventListener("click", _ev_click);
+        myboard.removeEventListener("mousemove", _ev_move);
+        myboard.removeEventListener("mouseout", _ev_out);
+        turn_button(turn);
+      };
+      // board mouseout callback for edit move
+      var edit_board_mouse_out = function () {
+        if (this._last_mark) {
+          myboard.removeObject(this._last_mark);
+          delete this._last_mark;
+          delete this._lastX;
+          delete this._lastY;
+        }
+      };
+      function begin() {
+        // let hi = new WGo.Game();
+        // hi.play(4, 4, WGo.B, false)
 
-			// append new node to the current kifu
-			myplayer.kifuReader.node.appendChild(node);
+        var elem = document.getElementById("player");
+        // let hi = new WGo.Game();
+        // WGo.Game = hi
+        var total_time = 100;
+        var blackValue = "sunlf&mini";
+        let whiteValue = "sfdf&hello";
+        const sunlf = new WGo.BasicPlayer(elem, {
+          sgf:
+            "(;SZ[19]TM[" +
+            total_time +
+            "]KM[7.5]" +
+            "PB[" +
+            blackValue +
+            "]PW[" +
+            whiteValue +
+            "])",
+          enableWheel: false,
+          enableKeys: false,
+          // move: 1000
+        });
 
-			// show next move
-			myplayer.next(myplayer.kifuReader.node.children.length - 1);
+        var e = WGo.Player.Editable;
+        // e.kifuReader = kfr;
+        myboard = sunlf.board;
+        myplayer = sunlf;
 
-			myboard.removeEventListener("click", _ev_click);
-			myboard.removeEventListener("mousemove", _ev_move);
-			myboard.removeEventListener("mouseout", _ev_out);
-			turn_button(turn);
-		}
-		// board mouseout callback for edit move	
-		var edit_board_mouse_out = function () {
-			if (this._last_mark) {
-				myboard.removeObject(this._last_mark);
-				delete this._last_mark;
-				delete this._lastX;
-				delete this._lastY;
-			}
-		}
-		function begin() {
-			// let hi = new WGo.Game();
-			// hi.play(4, 4, WGo.B, false)
+        var black = document.getElementById("black");
+        black.disabled = false;
+        var white = document.getElementById("white");
+        white.disabled = true;
+        var begin = document.getElementById("begin");
+        begin.disabled = true;
+      }
+      function white() {
+        _ev_move = _ev_move || edit_board_mouse_move.bind(myboard);
+        _ev_out = _ev_out || edit_board_mouse_out.bind(myboard);
+        _ev_click = _ev_click || play.bind(myboard);
+        myboard.addEventListener("mousemove", _ev_move);
+        myboard.addEventListener("click", _ev_click);
+        myboard.addEventListener("mouseout", _ev_out);
+        // var black = document.getElementById("black");
+        // black.disabled = false
+        var white = document.getElementById("white");
+        white.disabled = true;
+      }
+      function black() {
+        // remove edit listeners
+        _ev_move = _ev_move || edit_board_mouse_move.bind(myboard);
+        _ev_out = _ev_out || edit_board_mouse_out.bind(myboard);
+        _ev_click = _ev_click || play.bind(myboard);
+        myboard.addEventListener("mousemove", _ev_move);
+        myboard.addEventListener("click", _ev_click);
+        myboard.addEventListener("mouseout", _ev_out);
+        var black = document.getElementById("black");
+        black.disabled = true;
+        // var white = document.getElementById("white");
+        // white.disabled = true
+      }
+      function turn_button(turn) {
+        if (turn == 1) {
+          var white = document.getElementById("white");
+          white.disabled = false;
+        } else {
+          var black = document.getElementById("black");
+          black.disabled = false;
+        }
+      }
+      var random_play = function (player, x, y) {
+        // ignore invalid move
+        if (player.frozen || !player.kifuReader.game.isValid(x, y)) return;
 
-			var elem = document.getElementById("player");
-			// let hi = new WGo.Game();
-			// WGo.Game = hi
-			var total_time = 100;
-			var blackValue = "sunlf";
-			let whiteValue = "sfdf";
-			const sunlf = new WGo.BasicPlayer(elem, {
-				sgf:
-					"(;SZ[19]TM[" + total_time + "]KM[7.5]" + "PB[" + blackValue + "]PW[" + whiteValue + "])"
-				, enableWheel: false,
-				enableKeys: false
-				// move: 1000	
-			});
+        var node;
 
-			var e = WGo.Player.Editable;
-			// e.kifuReader = kfr;
-			myboard = sunlf.board
-			myplayer = sunlf
+        // create new node
+        if (x == null) {
+          node = new WGo.KNode({
+            move: {
+              pass: true,
+              c: player.kifuReader.game.turn,
+            },
+            _edited: true,
+          });
+        } else {
+          node = new WGo.KNode({
+            move: {
+              x: x,
+              y: y,
+              c: player.kifuReader.game.turn,
+            },
+            _edited: true,
+          });
+        }
 
-			var black = document.getElementById("black");
-			black.disabled = false
-			var white = document.getElementById("white");
-			white.disabled = true
-			var begin = document.getElementById("begin");
-			begin.disabled = true
+        // append new node to the current kifu
+        player.kifuReader.node.appendChild(node);
 
+        // show next move
+        player.next(player.kifuReader.node.children.length - 1);
+      };
+      function random() {
+        random_play(
+          myplayer,
+          getRandomIntInclusive(0, 19),
+          getRandomIntInclusive(0, 19)
+        );
+      }
 
-		}
-		function white() {
-			_ev_move = _ev_move || edit_board_mouse_move.bind(myboard);
-			_ev_out = _ev_out || edit_board_mouse_out.bind(myboard);
-			_ev_click = _ev_click || play.bind(myboard);
-			myboard.addEventListener("mousemove", _ev_move);
-			myboard.addEventListener("click", _ev_click);
-			myboard.addEventListener("mouseout", _ev_out);
-			// var black = document.getElementById("black");
-			// black.disabled = false
-			var white = document.getElementById("white");
-			white.disabled = true
-		}
-		function black() {
-			// remove edit listeners
-			_ev_move = _ev_move || edit_board_mouse_move.bind(myboard);
-			_ev_out = _ev_out || edit_board_mouse_out.bind(myboard);
-			_ev_click = _ev_click || play.bind(myboard);
-			myboard.addEventListener("mousemove", _ev_move);
-			myboard.addEventListener("click", _ev_click);
-			myboard.addEventListener("mouseout", _ev_out);
-			var black = document.getElementById("black");
-			black.disabled = true
-			// var white = document.getElementById("white");
-			// white.disabled = true
+      function getRandomIntInclusive(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive
+      }
 
-		}
-		function turn_button(turn) {
-			if (turn == 1) {
-				var white = document.getElementById("white");
-				white.disabled = false
-			} else {
-				var black = document.getElementById("black");
-				black.disabled = false
-			}
-
-
-		}
-		var random_play = function (player, x, y) {
-			// ignore invalid move
-			if (player.frozen || !player.kifuReader.game.isValid(x, y)) return;
-
-			var node;
-
-			// create new node
-			if (x == null) {
-				node = new WGo.KNode({
-					move: {
-						pass: true,
-						c: player.kifuReader.game.turn
-					},
-					_edited: true
-				});
-			}
-			else {
-				node = new WGo.KNode({
-					move: {
-						x: x,
-						y: y,
-						c: player.kifuReader.game.turn
-					},
-					_edited: true
-				});
-			}
-
-			// append new node to the current kifu
-			player.kifuReader.node.appendChild(node);
-
-			// show next move
-			player.next(player.kifuReader.node.children.length - 1);
-		}
-		function random() {
-			random_play(myplayer, getRandomIntInclusive(0, 19), getRandomIntInclusive(0, 19))
-		}
-
-		function getRandomIntInclusive(min, max) {
-			min = Math.ceil(min);
-			max = Math.floor(max);
-			return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive 
-		}
-
-		function info() {
-			myplayer.kifu.info["PB"] = "hello world";
-			myplayer.loadSgf(myplayer.kifu.toSgf());
-			myplayer.last();
-			alert(myplayer.kifu.toSgf());
-		}
-	</script>
-
-</body>
-
+      function info() {
+        myplayer.kifu.info["PB"] = "hello world";
+        myplayer.loadSgf(myplayer.kifu.toSgf());
+        myplayer.last();
+        alert(myplayer.kifu.toSgf());
+      }
+    </script>
+  </body>
 </html>
