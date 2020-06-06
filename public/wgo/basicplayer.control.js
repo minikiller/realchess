@@ -11,6 +11,8 @@ var compare_widgets = function(a,b) {
 var prepare_dom = function(player) {
 
 	this.iconBar = document.createElement("div");
+	this.iconBar.setAttribute("id", "wgo-control");
+	this.iconBar.style.display = "none";
 	this.iconBar.className = "wgo-control-wrapper";
 	this.element.appendChild(this.iconBar);
 
@@ -390,21 +392,7 @@ Control.widgets = [ {
 			}
 		}]
 	}
-}, {
-	constructor: control.Group,
-	args: {
-		name: "right",
-		widgets: [{
-			constructor: control.Button,
-			args: {
-				name: "about",
-				click: function(player) {
-					player.showMessage(WGo.t("about-text"));
-				},
-			}
-		}]
-	}
-}, {
+},  {
 	constructor: control.Group,
 	args: {
 		name: "control",

@@ -561,10 +561,10 @@
 				}
 				//sunlf add 
 				if (res.length > 0) {
-					var audio = new Audio('../static/deadone.mp3');
+					var audio = new Audio('/static/deadone.mp3');
 				}
 				else {
-					var audio = new Audio('../static/move.mp3');
+					var audio = new Audio('/static/move.mp3');
 				}
 				audio.play();
 				return {
