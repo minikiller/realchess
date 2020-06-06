@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>WGo</title>
+    <script type="text/javascript" src="wgo/wgo.js"></script>
+    <script type="text/javascript" src="wgo/kifu.js"></script>
+    <script type="text/javascript" src="wgo/sgfparser.js"></script>
+    <script type="text/javascript" src="wgo/player.js"></script>
+    <script type="text/javascript" src="wgo/basicplayer.js"></script>
+    <script type="text/javascript" src="wgo/basicplayer.component.js"></script>
+    <script type="text/javascript" src="wgo/basicplayer.infobox.js"></script>
+    <!-- <script type="text/javascript" src="wgo/basicplayer.commentbox.js"></script> -->
+    <script type="text/javascript" src="wgo/basicplayer.control.js"></script>
+    <!-- <script type="text/javascript" src="wgo/player.editable.js"></script> -->
+    <script type="text/javascript" src="wgo/scoremode.js"></script>
+    <script type="text/javascript" src="wgo/player.marker.js"></script>
+    <!-- <script type="text/javascript" src="wgo/player.permalink.js"></script> -->
+    <script type="text/javascript" src="i18n/i18n.zh.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="wgo/wgo.player.css" />
+    <!-- <link rel="stylesheet" type="text/css" href="themes/wgo.player.dark.css" /> -->
+
+    <style>
+      body {
+        background-color: #000;
+        color: white;
+      }
+    </style>
+  </head>
+
+  <body>
+    <button onclick="begin()">bd</button>
+    <div id="player" class="player"></div>
+
+    <script type="text/javascript">
+      var elem = document.getElementById("player");
+      var player = new WGo.BasicPlayer(elem, {
+        sgf:
+          "(;GM[1]FF[4]CA[UTF-8]AP[CGoban:3]ST[2]RU[Japanese]SZ[19]HA[9]KM[0.00]PW[Tom]PB[Jack]AB[dd][jd][pd][dj][jj][pj][dp][jp][pp];W[qf];B[qe];W[pf];B[nc];W[pm];B[mp];W[mj];B[og];W[of];B[mg];W[oi];B[pi];W[ph];B[oh];W[pg];B[ni];W[oj];B[nj];W[ok];B[nk];W[nl];B[ol];W[pk];B[ml];W[nm])",
+      });
+
+      player.last();
+
+      function begin() {
+        this._marker =
+          this._marker || new WGo.Player.Marker(player, player.board);
+        if (!this._isFirst) {
+          player.config.markLastMove = false;
+          this._marker.clearDefaultSytle();
+          this._marker.switchMaker();
+          this._isFirst = true;
+        } else if (
+          this._marker.config.markerStyle == "LB" &&
+          this._marker.config.markerNum != 0
+        ) {
+          this._marker.switchMaker({
+            markerNum: 0,
+          });
+        } else if (
+          this._marker.config.markerStyle == "LB" &&
+          this._marker.config.markerNum == 0
+        ) {
+          this._marker.switchMaker({
+            markerStyle: "TRS",
+            markerNum: 1,
+          });
+        } else {
+          this._marker.switchMaker({
+            markerStyle: "LB",
+            markerNum: 5,
+          });
+        }
+      }
+    </script>
+  </body>
+</html>

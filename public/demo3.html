@@ -10,11 +10,12 @@
     <script type="text/javascript" src="wgo/basicplayer.js"></script>
     <script type="text/javascript" src="wgo/basicplayer.component.js"></script>
     <script type="text/javascript" src="wgo/basicplayer.infobox.js"></script>
-    <script type="text/javascript" src="wgo/basicplayer.commentbox.js"></script>
+    <!-- <script type="text/javascript" src="wgo/basicplayer.commentbox.js"></script> -->
     <script type="text/javascript" src="wgo/basicplayer.control.js"></script>
-    <script type="text/javascript" src="wgo/player.editable.js"></script>
+    <!-- <script type="text/javascript" src="wgo/player.editable.js"></script> -->
     <script type="text/javascript" src="wgo/scoremode.js"></script>
-    <script type="text/javascript" src="wgo/player.permalink.js"></script>
+    <script type="text/javascript" src="wgo/player.marker.js"></script>
+    <!-- <script type="text/javascript" src="wgo/player.permalink.js"></script> -->
     <script type="text/javascript" src="i18n/i18n.zh.js"></script>
 
     <link rel="stylesheet" type="text/css" href="wgo/wgo.player.css" />
@@ -46,6 +47,9 @@
     </div>
     <div>
       <button id="info" onclick="info()">info</button>
+    </div>
+    <div>
+      <button id="regret" onclick="regret()">regret</button>
     </div>
     <script type="text/javascript">
       var myboard, myplayer, _ev_move, _ev_click, _ev_out;
@@ -106,17 +110,18 @@
             _edited: true,
           });
         }
+         
+          myplayer.kifuReader.node.appendChild(node);
 
+          // show next move
+          myplayer.next(myplayer.kifuReader.node.children.length - 1);
+
+          myboard.removeEventListener("click", _ev_click);
+          myboard.removeEventListener("mousemove", _ev_move);
+          myboard.removeEventListener("mouseout", _ev_out);
+          turn_button(turn);
+         
         // append new node to the current kifu
-        myplayer.kifuReader.node.appendChild(node);
-
-        // show next move
-        myplayer.next(myplayer.kifuReader.node.children.length - 1);
-
-        myboard.removeEventListener("click", _ev_click);
-        myboard.removeEventListener("mousemove", _ev_move);
-        myboard.removeEventListener("mouseout", _ev_out);
-        turn_button(turn);
       };
       // board mouseout callback for edit move
       var edit_board_mouse_out = function () {
@@ -249,6 +254,13 @@
         myplayer.loadSgf(myplayer.kifu.toSgf());
         myplayer.last();
         alert(myplayer.kifu.toSgf());
+      }
+
+      function regret() {
+        console.log(myplayer.kifu.toSgf());
+        myplayer.kifuReader.node.remove();
+        myplayer.loadSgf(myplayer.kifu.toSgf());
+        myplayer.last();
       }
     </script>
   </body>

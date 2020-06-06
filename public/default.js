@@ -368,6 +368,10 @@
       });
     });
 
+    $("#game-test").on("click", function () {
+      myplayer.kifu.info.black = "1213131";
+      myplayer.reload;
+    });
     $("#login").on("click", function () {
       username = $("#username").val();
 
@@ -715,21 +719,21 @@
     function getScore() {
       if (score_selected) {
         myplayer.setFrozen(false);
-        this._score_mode.end();
-        delete this._score_mode;
+        _score_mode.end();
+        delete _score_mode;
         myplayer.notification();
         myplayer.help();
         score_selected = false;
       } else {
         myplayer.setFrozen(true);
         myplayer.help("<p>" + WGo.t("help_score") + "</p>");
-        this._score_mode = new WGo.ScoreMode(
+        _score_mode = new WGo.ScoreMode(
           myplayer.kifuReader.game.position,
           myplayer.board,
           myplayer.kifu.info.KM || 0.5,
           myplayer.notification
         );
-        this._score_mode.start();
+        _score_mode.start();
         score_selected = true;
       }
     }
