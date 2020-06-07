@@ -2,6 +2,10 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, minimum-scale=1.0"
+    />
     <title>WGo</title>
     <script type="text/javascript" src="wgo/wgo.js"></script>
     <script type="text/javascript" src="wgo/kifu.js"></script>
@@ -51,6 +55,8 @@
     <div>
       <button id="regret" onclick="regret()">regret</button>
     </div>
+    <audio id="audioMove" src="./move.mp3" preload="auto"></audio>
+    <audio id="audioDead" src="./deadone.mp3" preload="auto"></audio>
     <script type="text/javascript">
       var myboard, myplayer, _ev_move, _ev_click, _ev_out;
       var set_info = function () {
