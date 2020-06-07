@@ -17,8 +17,6 @@ Real-time go chess game
 
 ### player.js 287 lines update event produce
 
-###s
-
 ### tag
 - git tag v0.01 1b9594f -m "完成行棋效果的增加，在继续四人下棋前的保存" (add a tag)
 - git push --tags (push to server) 
